@@ -1,11 +1,20 @@
-use std::collections::btree_map::Range;
+pub mod chess;
 
-use macroquad::prelude::*;
+//use chess::*;
 
-#[macroquad::main("BasicShapes")]
-async fn main() {
-    loop {
-        clear_background(LIGHTGRAY);
+
+//#[macroquad::main("BasicShapes")]
+fn main() {
+    let mut board = chess::Board::starting_positions();
+    board.display_as_text();
+    board.move_piece((4,1), (4,3));
+    board.move_piece((4,6), (4,4));
+    board.move_piece((5,0), (2,3));
+    println!();
+    board.display_as_text();
+
+    /* loop {
+        clear_background(RED);
 
         let grid_width_x = 8;
         let grid_width_y = 8;
@@ -34,5 +43,5 @@ async fn main() {
         
 
         next_frame().await
-    }
+    } */
 }

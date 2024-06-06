@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 macroquad = "0.4.8"
 rand = "0.8.5"
+termcolor = "1.4.1"
