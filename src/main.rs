@@ -1,15 +1,26 @@
 pub mod chess;
+use chess::Coordinate;
 
-//use chess::*;
 
-
-//#[macroquad::main("BasicShapes")]
+//#[macroquad::main("Chess")]
 fn main() {
     let mut board = chess::Board::starting_positions();
+    //let mut board = chess::Board::rook();
     board.display_as_text();
-    board.move_piece((4,1), (4,3));
-    board.move_piece((4,6), (4,4));
-    board.move_piece((5,0), (2,3));
+    println!();
+
+    //println!("{:?}", board.move_piece(Coordinate::new(0, 7), Coordinate::new(0,0)));
+
+
+
+    println!("{:?}", board.move_piece(Coordinate::new(4 , 1), Coordinate::new(4, 3)));
+    println!("{:?}", board.move_piece(Coordinate::new(4 , 6), Coordinate::new(4, 4)));
+    println!("{:?}", board.move_piece(Coordinate::new(4 , 3), Coordinate::new(4, 4)));
+    println!("{:?}", board.move_piece(Coordinate::new(5 , 0), Coordinate::new(1, 4)));
+    println!("{:?}", board.move_piece(Coordinate::new(1 , 7), Coordinate::new(2, 5)));
+    println!("{:?}", board.move_piece(Coordinate::new(4 , 0), Coordinate::new(5, 0)));
+    println!("{:?}", board.move_piece(Coordinate::new(0, 7), Coordinate::new(0, 5)));
+
     println!();
     board.display_as_text();
 
@@ -40,7 +51,7 @@ fn main() {
                 }
             }
         }
-        
+
 
         next_frame().await
     } */
