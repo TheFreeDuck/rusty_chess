@@ -167,6 +167,22 @@ impl Piece {
         false
     }
 
+    fn is_in_check(&self,color: Color, board: &Board) -> bool{
+        match color{
+            Color::Black => {
+                for x in 0..8{
+                    for y in 0..8{
+                        let square = board.squares[x][y];
+                        if let Some(piece) = square{
+                        }
+                    }
+                }
+            },
+            Color::White => todo!(),
+        }
+        false
+    }
+
     fn get_color(&self) -> Color {
         match self {
             Piece::Pawn(color) => *color,
@@ -280,7 +296,7 @@ impl Board {
         if from == to {
             return Err("Piece did not move");
         }
-        if to.x >= 8 && to.y >= 8 {
+        if to.x >= 8 && to.y >= 8{
             return Err("Out of bounds");
         }
         match self.squares[from.x_usize()][from.y_usize()] {
