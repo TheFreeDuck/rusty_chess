@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[derive(Copy, Clone, Debug, PartialEq)]
 enum Piece {
     Pawn { color: Color },
@@ -16,6 +14,11 @@ impl Piece {
             if self.get_color() == destination_piece.get_color() {
                 return false;
             }
+        }
+        let mut board_after_move = board.clone();
+        board_after_move.squares[to.x_usize()][to.y_usize()] = board_after_move.squares[from.x_usize()][from.y_usize()].take();
+        if board_after_move.is_in_check(self.get_color()){
+            return false;
         }
 
         match self {
@@ -76,27 +79,47 @@ impl Piece {
 
     fn is_legal_bishop_move(from: Coordinate, to: Coordinate, board: &Board, color: Color) -> bool {
         let difference = from.difference(to);
-        if difference.x == difference.y {
-            return true;
+        if difference.x != difference.y {
+            return false
         }
-        false
+
+        let movement_vector = to.subtract(from);
+
+        let movement_direction = movement_vector.direction();
+
+        let mut is_blocked = false;
+
+        let x_end = to.x;
+        let y_end = to.y;
+        let mut x = from.x + movement_direction.x;
+        let mut y = from.y + movement_direction.y;
+        while x != x_end && y != y_end {
+            is_blocked = match board.squares[x as usize][y as usize] {
+                Some(_) => return false,
+                None => false,
+            };
+            x += movement_direction.x;
+            y += movement_direction.y;
+        }
+        
+        
+        !is_blocked
     }
 
     fn is_legal_rook_move(from: Coordinate, to: Coordinate, board: &Board, color: Color) -> bool {
-        // Placeholder logic
         let movement_vector = to.subtract(from);
         if movement_vector.x == 0 {
             let mut is_blocked = false;
             if movement_vector.y > 0 {
-                for i in from.y + 1..to.y {
-                    is_blocked = match board.squares[from.x_usize()][i as usize] {
+                for y in from.y + 1..to.y {
+                    is_blocked = match board.squares[from.x_usize()][y as usize] {
                         Some(_) => return false,
                         None => false,
                     }
                 }
             } else {
-                for i in (to.y + 1..from.y).rev() {
-                    is_blocked = match board.squares[from.x_usize()][i as usize] {
+                for y in (to.y + 1..from.y).rev() {
+                    is_blocked = match board.squares[from.x_usize()][y as usize] {
                         Some(_) => return false,
                         None => false,
                     }
@@ -109,15 +132,15 @@ impl Piece {
         if movement_vector.y == 0 {
             let mut is_blocked = false;
             if movement_vector.x > 0 {
-                for i in from.x + 1..to.x {
-                    is_blocked = match board.squares[i as usize][from.y_usize()] {
+                for y in from.x + 1..to.x {
+                    is_blocked = match board.squares[y as usize][from.y_usize()] {
                         Some(_) => return false,
                         None => false,
                     }
                 }
             } else {
-                for i in (to.y + 1..from.x).rev() {
-                    is_blocked = match board.squares[i as usize][from.y_usize()] {
+                for y in (to.y + 1..from.x).rev() {
+                    is_blocked = match board.squares[y as usize][from.y_usize()] {
                         Some(_) => return false,
                         None => false,
                     }
@@ -130,88 +153,13 @@ impl Piece {
     }
 
     fn is_legal_queen_move(from: Coordinate, to: Coordinate, board: &Board, color: Color) -> bool {
-        // Placeholder logic
-        true
+        Self::is_legal_rook_move(from, to, board, color) || Self::is_legal_bishop_move(from, to, board, color)
     }
 
     fn is_legal_king_move(from: Coordinate, to: Coordinate, board: &Board, color: Color) -> bool {
         let difference = from.difference(to);
         if difference.x == 1 || difference.y == 1 {
             return true;
-        }
-        false
-    }
-
-    fn is_in_check(&self, color: Color, board: &Board) -> bool {
-        match color {
-            Color::Black => {
-                let mut king_position = Coordinate::new(-1, -1);
-                for x in 0..8 {
-                    for y in 0..8 {
-                        let square = board.squares[x][y];
-                        match square {
-                            Some(Piece::King {
-                                color: Color::Black,
-                                has_moved: _,
-                            }) => king_position = Coordinate::new(x as i32, y as i32),
-                            Some(_) => continue,
-                            None => continue,
-                        }
-                    }
-                }
-
-                for x in 0..8 {
-                    for y in 0..8 {
-                        let square = board.squares[x][y];
-                        if let Some(piece) = square {
-                            if piece.get_color() == Color::White {
-                                if piece.is_legal_move(
-                                    Coordinate::new(x as i32, y as i32),
-                                    king_position,
-                                    board,
-                                ) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            Color::White => {
-                let mut king_position = Coordinate::new(-1, -1);
-                for x in 0..8 {
-                    for y in 0..8 {
-                        let square = board.squares[x][y];
-                        match square {
-                            Some(Piece::King {
-                                color: Color::White,
-                                has_moved: _,
-                            }) => {
-                                king_position = Coordinate::new(x as i32, y as i32);
-                            }
-                            Some(_) => continue,
-                            None => continue,
-                        }
-                    }
-                }
-
-                for x in 0..8 {
-                    for y in 0..8 {
-                        let square = board.squares[x][y];
-                        if let Some(piece) = square {
-                            if piece.get_color() == Color::Black {
-                                if piece.is_legal_move(
-                                    Coordinate::new(x as i32, y as i32),
-                                    king_position,
-                                    board,
-                                ) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
         false
     }
@@ -248,6 +196,15 @@ impl Coordinate {
         Coordinate::new((self.x - other.x).abs(), (self.y - other.y).abs())
     }
 
+    fn direction(&self) -> Self{
+        let movement_direction = Coordinate::new(
+            if self.x > 0 { 1 } else { -1 },
+            if self.y > 0 { 1 } else { -1 },
+        );
+
+        movement_direction
+    }
+
     pub fn new(x: i32, y: i32) -> Self {
         Coordinate { x, y }
     }
@@ -259,6 +216,8 @@ impl Coordinate {
     pub fn y_usize(&self) -> usize {
         self.y as usize
     }
+
+
 }
 
 impl PartialEq for Coordinate {
@@ -267,12 +226,90 @@ impl PartialEq for Coordinate {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct Board {
     squares: [[Option<Piece>; 8]; 8],
     side_to_move: Color,
 }
 
 impl Board {
+
+    fn is_in_check(&self, color: Color) -> bool {
+        match color {
+            Color::Black => {
+                let mut king_position = Coordinate::new(0, 0);
+                for x in 0..8 {
+                    for y in 0..8 {
+                        let square = self.squares[x][y];
+                        match square {
+                            Some(Piece::King {
+                                color: Color::Black,
+                                has_moved: _,
+                            }) => {king_position = Coordinate::new(x as i32, y as i32);
+                                break},
+                            Some(_) => (),
+                            None => (),
+                        }
+                    }
+                }
+
+                for x in 0..8 {
+                    for y in 0..8 {
+                        let square = self.squares[x][y];
+                        if let Some(piece) = square {
+                            if piece.get_color() == Color::White {
+                                if piece.is_legal_move(
+                                    Coordinate::new(x as i32, y as i32),
+                                    king_position,
+                                    self,
+                                ) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Color::White => {
+                let mut king_position = Coordinate::new(0, 0);
+                for x in 0..8 {
+                    for y in 0..8 {
+                        let square = self.squares[x][y];
+                        match square {
+                            Some(Piece::King {
+                                color: Color::White,
+                                has_moved: _,
+                            }) => {
+                                king_position = Coordinate::new(x as i32, y as i32);
+                                break;
+                            }
+                            Some(_) => (),
+                            None => (),
+                        }
+                    }
+                }
+
+                for x in 0..8 {
+                    for y in 0..8 {
+                        let square = self.squares[x][y];
+                        if let Some(piece) = square {
+                            if piece.get_color() == Color::Black {
+                                if piece.is_legal_move(
+                                    Coordinate::new(x as i32, y as i32),
+                                    king_position,
+                                    self,
+                                ) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        false
+    }
+
     pub fn starting_positions() -> Board {
         let mut squares = [[None; 8]; 8];
 
@@ -529,8 +566,7 @@ impl Board {
         match self.squares[from.x_usize()][from.y_usize()] {
             Some(piece) => {
                 if piece.is_legal_move(from, to, self) {
-                    self.squares[to.x_usize()][to.y_usize()] =
-                        self.squares[from.x_usize()][from.y_usize()].take();
+                    self.squares[to.x_usize()][to.y_usize()] = self.squares[from.x_usize()][from.y_usize()].take();
                     return Ok(());
                 }
                 Err("Illegal move!")

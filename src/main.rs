@@ -16,10 +16,10 @@ fn main() {
     println!("{:?}", board.move_piece(Coordinate::new(4 , 1), Coordinate::new(4, 3)));
     println!("{:?}", board.move_piece(Coordinate::new(4 , 6), Coordinate::new(4, 4)));
     println!("{:?}", board.move_piece(Coordinate::new(4 , 3), Coordinate::new(4, 4)));
-    println!("{:?}", board.move_piece(Coordinate::new(5 , 0), Coordinate::new(1, 4)));
-    println!("{:?}", board.move_piece(Coordinate::new(1 , 7), Coordinate::new(2, 5)));
-    println!("{:?}", board.move_piece(Coordinate::new(4 , 0), Coordinate::new(5, 0)));
-    println!("{:?}", board.move_piece(Coordinate::new(0, 7), Coordinate::new(0, 5)));
+    println!("{:?}", board.move_piece(Coordinate::new(5 , 0), Coordinate::new(2, 3)));
+    println!("{:?}", board.move_piece(Coordinate::new(3 , 0), Coordinate::new(7, 4)));
+
+
 
     println!();
     board.display_as_text();
