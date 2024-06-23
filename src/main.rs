@@ -1,58 +1,67 @@
 pub mod chess;
-use chess::Coordinate;
+pub mod draw;
+pub mod ui;
+use draw::WindowParameters;
+use macroquad::prelude::*;
+use ui::{Button, ChessBoard, Title, UIManager};
 
+fn window_conf() -> Conf {
+    Conf { window_title: "Rusty Chess".to_owned(), window_width: 1600, window_height: 900, window_resizable: true, ..Default::default() }
+}
 
-//#[macroquad::main("Chess")]
-fn main() {
-    let mut board = chess::Board::starting_positions();
-    //let mut board = chess::Board::rook();
-    board.display_as_text();
-    println!();
+pub enum GameState {
+    Menu,
+    AgainstYourself,
+}
 
-    //println!("{:?}", board.move_piece(Coordinate::new(0, 7), Coordinate::new(0,0)));
+#[macroquad::main(window_conf)]
+async fn main() {
+    let mut fullscreen = false;
+    let texture: Texture2D = load_texture("background.png").await.unwrap();
+    let mut game_state = GameState::Menu;
 
+    let mut against_yourself = UIManager::new();
 
+    let mut board = chess::board::Board::starting_positions();
 
-    println!("{:?}", board.move_piece(Coordinate::new(4 , 1), Coordinate::new(4, 3)));
-    println!("{:?}", board.move_piece(Coordinate::new(4 , 6), Coordinate::new(4, 4)));
-    println!("{:?}", board.move_piece(Coordinate::new(4 , 3), Coordinate::new(4, 4)));
-    println!("{:?}", board.move_piece(Coordinate::new(5 , 0), Coordinate::new(2, 3)));
-    println!("{:?}", board.move_piece(Coordinate::new(3 , 0), Coordinate::new(7, 4)));
+    against_yourself.add_chess_board("chessBoard", ChessBoard::new(0.05,0.05, 0.5, board.squares).await);
 
+    let mut main_menu = UIManager::new();
+    main_menu.add_title("Main Title", Title::new_center_width("Rusty Chess", 200.0, 0.1, BLACK));
+    main_menu.add_button("Against yourself", Button::new_center_width(0.2, 0.5, 0.15, "Against yourself", BLUE, LIGHTGRAY));
+    main_menu.add_button("Against bot", Button::new_center_width(0.5, 0.5, 0.15, "Against bot", BLUE, LIGHTGRAY));
+    main_menu.add_button("Online", Button::new_center_width(0.8, 0.5, 0.15, "Online", BLUE, LIGHTGRAY));
+    loop {
+        let window_parameters = WindowParameters::new(16.0 / 9.0);
+        window_parameters.clear(WHITE);
+        draw_texture_ex(&texture, window_parameters.x_offset, window_parameters.y_offset, WHITE, DrawTextureParams{ dest_size: Some(vec2(window_parameters.width, window_parameters.height)), source: None, rotation: 0.0, flip_x: false, flip_y: false, pivot: None });
+        match game_state {
+            GameState::Menu => {
+                main_menu.update(&window_parameters);
+                main_menu.render(&window_parameters);
 
-
-    println!();
-    board.display_as_text();
-
-    /* loop {
-        clear_background(RED);
-
-        let grid_width_x = 8;
-        let grid_width_y = 8;
-
-        let grid_item_width_x= screen_width()/grid_width_x as f32;
-        let grid_item_width_y = screen_height()/grid_width_y as f32;
-
-        let mut color = BLACK;
-        for i in 0..grid_width_x{
-            for j in 0..grid_width_y{
-                draw_rectangle(i as f32 * grid_item_width_x,j as f32 * grid_item_width_y,grid_item_width_x,grid_item_width_y, color);
-                if color == BLACK{
-                    color = WHITE;
-                }else{
-                    color = BLACK
+                if main_menu.was_button_clicked("Against yourself") {
+                    game_state = GameState::AgainstYourself;
+                }
+                if main_menu.was_button_clicked("Against bot") {
+                    println!("Against bot button clicked!");
+                }
+                if main_menu.was_button_clicked("Online") {
+                    println!("Online button clicked!");
                 }
             }
-            if grid_width_y % 2 == 0 {
-                if color == BLACK {
-                    color = WHITE;
-                } else {
-                    color = BLACK;
-                }
+            GameState::AgainstYourself => {
+                against_yourself.render(&window_parameters);
             }
         }
+        if is_key_pressed(KeyCode::F){
+            set_fullscreen(!fullscreen);
+            fullscreen = !fullscreen;
+        }
 
+        
 
+        window_parameters.clear_outside(BLACK);
         next_frame().await
-    } */
+    }
 }
