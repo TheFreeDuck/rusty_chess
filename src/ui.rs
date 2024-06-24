@@ -47,6 +47,35 @@ pub enum GraphicsPiece {
     },
 }
 
+impl GraphicsPiece{
+    pub fn render(&self, window_parameters: &WindowParameters, parent_square: &Square){
+        let piece_info = match self {
+            GraphicsPiece::Pawn { color, x, y, .. } => (color, x, y, "P"),
+            GraphicsPiece::Knight { color, x, y, .. } => (color, x, y, "Kn"),
+            GraphicsPiece::Bishop { color, x, y, .. } => (color, x, y, "B"),
+            GraphicsPiece::Rook { color, x, y, .. } => (color, x, y, "R"),
+            GraphicsPiece::Queen { color, x, y, .. } => (color, x, y, "Q"),
+            GraphicsPiece::King { color, x, y, .. } => (color, x, y, "K"),
+        };
+
+        window_parameters.render_rectangle(
+            *piece_info.1 - parent_square.width / 2.0,
+            *piece_info.2 - parent_square.width / 2.0,
+            parent_square.width / 2.0,
+            parent_square.height / 2.0,
+            GRAY,
+        );
+
+        window_parameters.render_text(
+            piece_info.3,
+            *piece_info.1,
+            *piece_info.2,
+            20.0,
+            *piece_info.0,
+        );
+    }
+}
+
 #[derive(Clone)]
 pub struct Square {
     x: f32,
@@ -63,6 +92,7 @@ pub struct ChessBoard {
     pub y: f32,
     pub width: f32,
     pub squares: HashMap<(usize, usize), Square>,
+    pub held_piece: Option<(usize, usize)>,
 }
 
 impl ChessBoard {
@@ -158,12 +188,13 @@ impl ChessBoard {
             y,
             width,
             squares,
+            held_piece: None,
         }
     }
 
-    pub fn render(&mut self, window_parameter: &WindowParameters) {
+    pub fn render(&mut self, window_parameters: &WindowParameters) {
         for ((_i, _j), square) in &self.squares {
-            window_parameter.render_rectangle(
+            window_parameters.render_rectangle(
                 square.x,
                 square.y,
                 square.width,
@@ -174,38 +205,21 @@ impl ChessBoard {
 
         for ((_i, _j), square) in &self.squares {
             if let Some(ref piece) = square.graphics_piece {
-                let piece_info = match piece {
-                    GraphicsPiece::Pawn { color, x, y, .. } => (color, x, y, "P"),
-                    GraphicsPiece::Knight { color, x, y, .. } => (color, x, y, "Kn"),
-                    GraphicsPiece::Bishop { color, x, y, .. } => (color, x, y, "B"),
-                    GraphicsPiece::Rook { color, x, y, .. } => (color, x, y, "R"),
-                    GraphicsPiece::Queen { color, x, y, .. } => (color, x, y, "Q"),
-                    GraphicsPiece::King { color, x, y, .. } => (color, x, y, "K"),
-                };
-
-                window_parameter.render_rectangle(
-                    *piece_info.1 - square.width / 4.0,
-                    *piece_info.2 - square.width / 2.0,
-                    square.width / 2.0,
-                    square.height / 2.0,
-                    GRAY,
-                );
-
-                window_parameter.render_text(
-                    piece_info.3,
-                    *piece_info.1,
-                    *piece_info.2,
-                    20.0,
-                    *piece_info.0,
-                );
+                piece.render(window_parameters, square);
             }
+        }
+        match self.held_piece{
+            Some(held_piece) => {
+                
+            },
+            None => (),
         }
     }
 
     pub fn update(&mut self, window_parameters: &WindowParameters) {
         let mouse_x = mouse_position().0 / window_parameters.width;
         let mouse_y = mouse_position().1 / window_parameters.height;
-        
+
         if let Some(square) = self.squares.get_mut(&(5, 0)) {
             if !is_mouse_button_down(MouseButton::Left) {
                 return;
