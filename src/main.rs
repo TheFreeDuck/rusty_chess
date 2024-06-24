@@ -52,6 +52,7 @@ async fn main() {
             }
             GameState::AgainstYourself => {
                 against_yourself.render(&window_parameters);
+                against_yourself.update(&window_parameters);
             }
         }
         if is_key_pressed(KeyCode::F){
