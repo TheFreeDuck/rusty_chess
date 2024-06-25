@@ -27,7 +27,7 @@ async fn main() {
     against_yourself.add_chess_board("chessBoard", ChessBoard::new(0.05,0.05, 0.5, board.squares).await);
 
     let mut main_menu = UIManager::new();
-    main_menu.add_title("Main Title", Title::new_center_width("Rusty Chess", 200.0, 0.1, BLACK));
+    main_menu.add_title("Main Title", Title::new_center_width("Rusty Chess", 70.0, 0.1, BLACK));
     main_menu.add_button("Against yourself", Button::new_center_width(0.2, 0.5, 0.15, "Against yourself", BLUE, LIGHTGRAY));
     main_menu.add_button("Against bot", Button::new_center_width(0.5, 0.5, 0.15, "Against bot", BLUE, LIGHTGRAY));
     main_menu.add_button("Online", Button::new_center_width(0.8, 0.5, 0.15, "Online", BLUE, LIGHTGRAY));

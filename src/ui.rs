@@ -229,23 +229,23 @@ impl ChessBoard {
     }
 
     pub fn update(&mut self, window_parameters: &WindowParameters) {
-        let mouse_x = mouse_position().0 / window_parameters.width;
-        let mouse_y = mouse_position().1 / window_parameters.height;
-
+        let mouse_x = (mouse_position().0 - window_parameters.x_offset) / window_parameters.width;
+        let mouse_y = (mouse_position().1 - window_parameters.y_offset) / window_parameters.height;
+    
         if is_mouse_button_pressed(MouseButton::Left) {
             for ((i, j), square) in &self.squares {
                 let is_hovered = mouse_x >= square.x
                     && mouse_x <= square.x + square.width
                     && mouse_y >= square.y
                     && mouse_y <= square.y + square.height;
-
+    
                 if is_hovered {
                     self.held_piece = Some((*i, *j));
                     break;
                 }
             }
         }
-
+    
         if let Some((i, j)) = self.held_piece {
             if let Some(square) = self.squares.get_mut(&(i, j)) {
                 if is_mouse_button_down(MouseButton::Left) {
@@ -263,7 +263,6 @@ impl ChessBoard {
                         }
                     }
                 } else {
-                    // Determine the new square position without borrowing `self.squares` mutably
                     let new_square_pos =
                         self.squares
                             .iter()
@@ -278,8 +277,7 @@ impl ChessBoard {
                                     None
                                 }
                             });
-
-                    // Perform the mutable updates separately
+    
                     if let Some((new_i, new_j)) = new_square_pos {
                         if let Some(mut piece) = self
                             .squares
@@ -287,16 +285,34 @@ impl ChessBoard {
                             .and_then(|square| square.graphics_piece.take())
                         {
                             if let Some(new_square) = self.squares.get_mut(&(new_i, new_j)) {
+                                // Calculate the center of the new square
+                                let new_x = new_square.x + new_square.width / 2.0;
+                                let new_y = new_square.y + new_square.height / 2.0;
+    
+                                // Snap piece to the center of the new square
+                                match &mut piece {
+                                    GraphicsPiece::Pawn { x, y, .. }
+                                    | GraphicsPiece::Knight { x, y, .. }
+                                    | GraphicsPiece::Bishop { x, y, .. }
+                                    | GraphicsPiece::Rook { x, y, .. }
+                                    | GraphicsPiece::Queen { x, y, .. }
+                                    | GraphicsPiece::King { x, y, .. } => {
+                                        *x = new_x;
+                                        *y = new_y;
+                                    }
+                                }
+    
                                 new_square.graphics_piece = Some(piece);
                             }
                         }
                     }
-
+    
                     self.held_piece = None;
                 }
             }
         }
     }
+    
 }
 
 pub struct Button {
@@ -369,7 +385,7 @@ impl Button {
             &self.label,
             self.x + (self.width / 2.0) - 1.0 / window_parameters.width,
             self.y + (self.height / 2.0) + 1.0 / window_parameters.height,
-            window_parameters.width / 20.0,
+            20.0,
             BLACK,
         );
     }
