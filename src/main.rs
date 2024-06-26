@@ -1,9 +1,10 @@
 pub mod chess;
 pub mod ui;
+use chess::Coordinate;
 use draw::WindowParameters;
 use macroquad::prelude::*;
-use ui::{draw, ui_manager};
-use ui_manager::{Button, GraphicsChessBoard, Title, UIManager};
+use ui::{draw, ui_chess_board::UIChessBoard, ui_manager};
+use ui_manager::{Button, Title, UIManager};
 
 fn window_conf() -> Conf {
     Conf { window_title: "Rusty Chess".to_owned(), window_width: 1600, window_height: 900, window_resizable: true, ..Default::default() }
@@ -23,7 +24,7 @@ async fn main() {
 
     let mut board = chess::chess_board::ChessBoard::starting_positions();
 
-    against_yourself.add_chess_board("chessBoard", GraphicsChessBoard::new(0.05, 0.05, 0.5, &board.squares).await);
+    let mut ui_chess_board = UIChessBoard::new(0.05, 0.05, 0.5, &board.squares, &texture);
 
     let mut main_menu = UIManager::new();
     main_menu.add_title("Main Title", Title::new_center_width("Rusty Chess", 70.0, 0.1, BLACK));
@@ -37,7 +38,7 @@ async fn main() {
 
         match game_state {
             GameState::Menu => {
-                main_menu.update(&window_parameters, &mut board);
+                main_menu.update(&window_parameters);
                 main_menu.render(&window_parameters);
 
                 if main_menu.was_button_clicked("Against yourself") {
@@ -51,8 +52,20 @@ async fn main() {
                 }
             }
             GameState::AgainstYourself => {
+                against_yourself.update(&window_parameters);
+                ui_chess_board.update_assume_logic(&window_parameters);
+                match ui_chess_board.request_move(&window_parameters){
+                    Some(movement_proposal) => {
+                        dbg!(board.move_piece(Coordinate::new(movement_proposal.0.0 as i32, movement_proposal.0.1 as i32), Coordinate::new(movement_proposal.1.0 as i32, movement_proposal.1.1 as i32)));
+                        ui_chess_board = UIChessBoard::new(0.05, 0.05, 0.5, &board.squares, &texture);
+                        board.display_as_text();
+                    },
+                    None => (),
+                }
+                
                 against_yourself.render(&window_parameters);
-                against_yourself.update(&window_parameters,&mut board);
+                ui_chess_board.render(&window_parameters);
+                
             }
         }
 

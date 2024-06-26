@@ -1,4 +1,4 @@
-use macroquad::{color::*, input::mouse_position, shapes::*, text::{draw_text, draw_text_ex, TextParams}, window::*};
+use macroquad::{color::*, input::mouse_position, shapes::*, text::draw_text, window::*};
 
 pub struct WindowParameters {
     pub target_aspect_ratio: f32,
@@ -69,6 +69,5 @@ impl WindowParameters {
 
     pub fn render_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, self.x_offset + x * self.width, self.y_offset + y * self.height, font_size, color);
-        //draw_text_ex(text, self.x_offset + x * self.width, self.y_offset + y * self.height, TextParams{font: None,font_size: font_size as u16,font_scale: 1.0,font_scale_aspect: 1.0, rotation: 0.0, color});
     }
 }

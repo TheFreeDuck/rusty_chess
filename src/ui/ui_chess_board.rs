@@ -1,21 +1,53 @@
 use crate::{
-    chess::{self, chess_board, ChessBoard, Coordinate},
+    chess::{self, ChessBoard, Coordinate},
     draw::WindowParameters,
 };
 use chess::piece::Piece;
 use macroquad::{
-    color::{Color, BLACK, GRAY, WHITE}, input::{is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released, MouseButton}, math::Vec2, shapes::draw_rectangle, text::get_text_center, texture::{load_texture, Texture2D}
+    color::{Color, BLACK, GRAY, WHITE},
+    input::{is_mouse_button_down, is_mouse_button_pressed, MouseButton},
+    texture::Texture2D,
 };
 use std::{collections::HashMap, usize};
 
 #[derive(Clone)]
 pub enum GraphicsPiece {
-    Pawn { texture: Texture2D, color: Color, x: f32, y: f32 },
-    Knight { texture: Texture2D, color: Color, x: f32, y: f32 },
-    Bishop { texture: Texture2D, color: Color, x: f32, y: f32 },
-    Rook { texture: Texture2D, color: Color, x: f32, y: f32 },
-    Queen { texture: Texture2D, color: Color, x: f32, y: f32 },
-    King { texture: Texture2D, color: Color, x: f32, y: f32 },
+    Pawn {
+        texture: Texture2D,
+        color: Color,
+        x: f32,
+        y: f32,
+    },
+    Knight {
+        texture: Texture2D,
+        color: Color,
+        x: f32,
+        y: f32,
+    },
+    Bishop {
+        texture: Texture2D,
+        color: Color,
+        x: f32,
+        y: f32,
+    },
+    Rook {
+        texture: Texture2D,
+        color: Color,
+        x: f32,
+        y: f32,
+    },
+    Queen {
+        texture: Texture2D,
+        color: Color,
+        x: f32,
+        y: f32,
+    },
+    King {
+        texture: Texture2D,
+        color: Color,
+        x: f32,
+        y: f32,
+    },
 }
 
 impl GraphicsPiece {
@@ -29,9 +61,21 @@ impl GraphicsPiece {
             GraphicsPiece::King { color, x, y, .. } => (color, x, y, "K"),
         };
 
-        window_parameters.render_rectangle(*piece_info.1 - parent_square.width / 4.0, *piece_info.2 - parent_square.height / 4.0, parent_square.width / 2.0, parent_square.height / 2.0, GRAY);
+        window_parameters.render_rectangle(
+            *piece_info.1 - parent_square.width / 4.0,
+            *piece_info.2 - parent_square.height / 4.0,
+            parent_square.width / 2.0,
+            parent_square.height / 2.0,
+            GRAY,
+        );
 
-        window_parameters.render_text(piece_info.3, *piece_info.1, *piece_info.2, 20.0, *piece_info.0);
+        window_parameters.render_text(
+            piece_info.3,
+            *piece_info.1,
+            *piece_info.2,
+            20.0,
+            *piece_info.0,
+        );
     }
 }
 
@@ -46,7 +90,7 @@ pub struct Square {
 }
 
 #[derive(Clone)]
-pub struct GraphicsChessBoard {
+pub struct UIChessBoard {
     pub x: f32,
     pub y: f32,
     pub width: f32,
@@ -54,9 +98,8 @@ pub struct GraphicsChessBoard {
     pub held_piece: Option<(usize, usize)>,
 }
 
-impl GraphicsChessBoard {
-    pub async fn new(x: f32, y: f32, width: f32, position: &[[Option<Piece>; 8]; 8]) -> Self {
-        let texture: Texture2D = load_texture("background.png").await.unwrap();
+impl UIChessBoard {
+    pub fn new(x: f32, y: f32, width: f32, position: &[[Option<Piece>; 8]; 8], texture: &Texture2D) -> Self {
         let mut squares: HashMap<(usize, usize), Square> = HashMap::new();
 
         let grid_width_x = 8;
@@ -125,19 +168,41 @@ impl GraphicsChessBoard {
                     }),
                     None => None,
                 };
-                squares.insert((i, j), Square { x: i as f32 * square_width + x, y: j as f32 * square_height + y, width: square_width, height: square_height, color, graphics_piece });
+                squares.insert(
+                    (i, j),
+                    Square {
+                        x: i as f32 * square_width + x,
+                        y: j as f32 * square_height + y,
+                        width: square_width,
+                        height: square_height,
+                        color,
+                        graphics_piece,
+                    },
+                );
                 color = if color == BLACK { WHITE } else { BLACK };
             }
             if grid_width_y % 2 == 0 {
                 color = if color == BLACK { WHITE } else { BLACK };
             }
         }
-        GraphicsChessBoard { x, y, width, squares, held_piece: None }
+        UIChessBoard {
+            x,
+            y,
+            width,
+            squares,
+            held_piece: None,
+        }
     }
 
     pub fn render(&mut self, window_parameters: &WindowParameters) {
         for ((_i, _j), square) in &self.squares {
-            window_parameters.render_rectangle(square.x, square.y, square.width, square.height, square.color);
+            window_parameters.render_rectangle(
+                square.x,
+                square.y,
+                square.width,
+                square.height,
+                square.color,
+            );
         }
 
         for ((_i, _j), square) in &self.squares {
@@ -158,12 +223,48 @@ impl GraphicsChessBoard {
         }
     }
 
-    pub fn update(&mut self, window_parameters: &WindowParameters, chess_position: &mut ChessBoard) {
+    pub fn request_move(
+        &mut self,
+        window_parameters: &WindowParameters,
+    ) -> Option<((usize, usize), (usize, usize))> {
+        let (mouse_x, mouse_y) = window_parameters.mouse_position();
+        if let Some((i, j)) = self.held_piece {
+            if let Some(_) = self.squares.get_mut(&(i, j)) {
+                if !is_mouse_button_down(MouseButton::Left) {
+                    let new_square =
+                        self.squares
+                            .iter()
+                            .find_map(|((new_i, new_j), new_square)| {
+                                let is_hovered = mouse_x >= new_square.x
+                                    && mouse_x <= new_square.x + new_square.width
+                                    && mouse_y >= new_square.y
+                                    && mouse_y <= new_square.y + new_square.height;
+                                if is_hovered {
+                                    Some((*new_i, *new_j))
+                                } else {
+                                    None
+                                }
+                            });
+
+                    return new_square.map(|new_square| ((i, j), new_square));
+                }
+            }
+        }
+        None
+    }
+
+    pub fn update_assume_logic(
+        &mut self,
+        window_parameters: &WindowParameters,
+    ) {
         let (mouse_x, mouse_y) = window_parameters.mouse_position();
 
         if is_mouse_button_pressed(MouseButton::Left) {
             for ((i, j), square) in &self.squares {
-                let is_hovered = mouse_x >= square.x && mouse_x <= square.x + square.width && mouse_y >= square.y && mouse_y <= square.y + square.height;
+                let is_hovered = mouse_x >= square.x
+                    && mouse_x <= square.x + square.width
+                    && mouse_y >= square.y
+                    && mouse_y <= square.y + square.height;
 
                 if is_hovered {
                     self.held_piece = Some((*i, *j));
@@ -177,7 +278,54 @@ impl GraphicsChessBoard {
                 if is_mouse_button_down(MouseButton::Left) {
                     if let Some(ref mut piece) = square.graphics_piece {
                         match piece {
-                            GraphicsPiece::Pawn { x, y, .. } | GraphicsPiece::Knight { x, y, .. } | GraphicsPiece::Bishop { x, y, .. } | GraphicsPiece::Rook { x, y, .. } | GraphicsPiece::Queen { x, y, .. } | GraphicsPiece::King { x, y, .. } => {
+                            GraphicsPiece::Pawn { x, y, .. }
+                            | GraphicsPiece::Knight { x, y, .. }
+                            | GraphicsPiece::Bishop { x, y, .. }
+                            | GraphicsPiece::Rook { x, y, .. }
+                            | GraphicsPiece::Queen { x, y, .. }
+                            | GraphicsPiece::King { x, y, .. } => {
+                                *x = mouse_x;
+                                *y = mouse_y;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn update_as_free_movement(
+        &mut self,
+        window_parameters: &WindowParameters,
+        chess_position: &mut ChessBoard,
+    ) {
+        let (mouse_x, mouse_y) = window_parameters.mouse_position();
+
+        if is_mouse_button_pressed(MouseButton::Left) {
+            for ((i, j), square) in &self.squares {
+                let is_hovered = mouse_x >= square.x
+                    && mouse_x <= square.x + square.width
+                    && mouse_y >= square.y
+                    && mouse_y <= square.y + square.height;
+
+                if is_hovered {
+                    self.held_piece = Some((*i, *j));
+                    break;
+                }
+            }
+        }
+
+        if let Some((i, j)) = self.held_piece {
+            if let Some(square) = self.squares.get_mut(&(i, j)) {
+                if is_mouse_button_down(MouseButton::Left) {
+                    if let Some(ref mut piece) = square.graphics_piece {
+                        match piece {
+                            GraphicsPiece::Pawn { x, y, .. }
+                            | GraphicsPiece::Knight { x, y, .. }
+                            | GraphicsPiece::Bishop { x, y, .. }
+                            | GraphicsPiece::Rook { x, y, .. }
+                            | GraphicsPiece::Queen { x, y, .. }
+                            | GraphicsPiece::King { x, y, .. } => {
                                 *x = mouse_x;
                                 *y = mouse_y;
                             }
@@ -188,28 +336,41 @@ impl GraphicsChessBoard {
                         .squares
                         .iter()
                         .find_map(|((new_i, new_j), new_square)| {
-                            let is_hovered = mouse_x >= new_square.x && mouse_x <= new_square.x + new_square.width && mouse_y >= new_square.y && mouse_y <= new_square.y + new_square.height;
+                            let is_hovered = mouse_x >= new_square.x
+                                && mouse_x <= new_square.x + new_square.width
+                                && mouse_y >= new_square.y
+                                && mouse_y <= new_square.y + new_square.height;
                             if is_hovered {
-                                match chess_position.move_piece(Coordinate::new(i as i32, j as i32), Coordinate::new(*new_i as i32, *new_j as i32)){
+                                match chess_position.move_piece(
+                                    Coordinate::new(i as i32, j as i32),
+                                    Coordinate::new(*new_i as i32, *new_j as i32),
+                                ) {
                                     Ok(_) => Some((*new_i, *new_j)),
                                     Err(_) => None,
                                 }
-                                
                             } else {
                                 None
                             }
                         })
                         .or(Some((i, j)));
-                    
 
                     if let Some((new_i, new_j)) = new_square_pos {
-                        if let Some(mut piece) = self.squares.get_mut(&(i, j)).and_then(|square| square.graphics_piece.take()) {
+                        if let Some(mut piece) = self
+                            .squares
+                            .get_mut(&(i, j))
+                            .and_then(|square| square.graphics_piece.take())
+                        {
                             if let Some(new_square) = self.squares.get_mut(&(new_i, new_j)) {
                                 let new_x = new_square.x + new_square.width / 2.0;
                                 let new_y = new_square.y + new_square.height / 2.0;
 
                                 match &mut piece {
-                                    GraphicsPiece::Pawn { x, y, .. } | GraphicsPiece::Knight { x, y, .. } | GraphicsPiece::Bishop { x, y, .. } | GraphicsPiece::Rook { x, y, .. } | GraphicsPiece::Queen { x, y, .. } | GraphicsPiece::King { x, y, .. } => {
+                                    GraphicsPiece::Pawn { x, y, .. }
+                                    | GraphicsPiece::Knight { x, y, .. }
+                                    | GraphicsPiece::Bishop { x, y, .. }
+                                    | GraphicsPiece::Rook { x, y, .. }
+                                    | GraphicsPiece::Queen { x, y, .. }
+                                    | GraphicsPiece::King { x, y, .. } => {
                                         *x = new_x;
                                         *y = new_y;
                                     }
