@@ -1,9 +1,9 @@
 pub mod chess;
-pub mod draw;
 pub mod ui;
 use draw::WindowParameters;
 use macroquad::prelude::*;
-use ui::{Button, ChessBoard, Title, UIManager};
+use ui::{draw, ui_manager};
+use ui_manager::{Button, ChessBoard, Title, UIManager};
 
 fn window_conf() -> Conf {
     Conf { window_title: "Rusty Chess".to_owned(), window_width: 1600, window_height: 900, window_resizable: true, ..Default::default() }
@@ -16,7 +16,6 @@ pub enum GameState {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut fullscreen = false;
     let texture: Texture2D = load_texture("background.png").await.unwrap();
     let mut game_state = GameState::Menu;
 
@@ -24,7 +23,7 @@ async fn main() {
 
     let mut board = chess::board::Board::starting_positions();
 
-    against_yourself.add_chess_board("chessBoard", ChessBoard::new(0.05,0.05, 0.5, board.squares).await);
+    against_yourself.add_chess_board("chessBoard", ChessBoard::new(0.05, 0.05, 0.5, board.squares).await);
 
     let mut main_menu = UIManager::new();
     main_menu.add_title("Main Title", Title::new_center_width("Rusty Chess", 70.0, 0.1, BLACK));
@@ -34,7 +33,8 @@ async fn main() {
     loop {
         let window_parameters = WindowParameters::new(16.0 / 9.0);
         window_parameters.clear(WHITE);
-        draw_texture_ex(&texture, window_parameters.x_offset, window_parameters.y_offset, WHITE, DrawTextureParams{ dest_size: Some(vec2(window_parameters.width, window_parameters.height)), source: None, rotation: 0.0, flip_x: false, flip_y: false, pivot: None });
+        draw_texture_ex(&texture, window_parameters.x_offset, window_parameters.y_offset, WHITE, DrawTextureParams { dest_size: Some(vec2(window_parameters.width, window_parameters.height)), source: None, rotation: 0.0, flip_x: false, flip_y: false, pivot: None });
+
         match game_state {
             GameState::Menu => {
                 main_menu.update(&window_parameters);
@@ -55,12 +55,6 @@ async fn main() {
                 against_yourself.update(&window_parameters);
             }
         }
-        if is_key_pressed(KeyCode::F){
-            set_fullscreen(!fullscreen);
-            fullscreen = !fullscreen;
-        }
-
-        
 
         window_parameters.clear_outside(BLACK);
         next_frame().await

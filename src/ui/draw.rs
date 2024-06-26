@@ -1,4 +1,4 @@
-use macroquad::{color::*, shapes::*, text::{draw_text, draw_text_ex, TextParams}, window::*};
+use macroquad::{color::*, input::mouse_position, shapes::*, text::{draw_text, draw_text_ex, TextParams}, window::*};
 
 pub struct WindowParameters {
     pub target_aspect_ratio: f32,
@@ -37,6 +37,12 @@ impl WindowParameters {
             y = 0.0;
         }
         WindowParameters { target_aspect_ratio, x_offset: x, y_offset: y, width: width, height: height}
+    }
+
+    pub fn mouse_position(&self) -> (f32, f32) {
+        let mouse_x = (mouse_position().0 - self.x_offset) / self.width;
+        let mouse_y = (mouse_position().1 - self.y_offset) / self.height;
+        (mouse_x, mouse_y)
     }
 
     pub fn clear_outside(&self, color: Color) {

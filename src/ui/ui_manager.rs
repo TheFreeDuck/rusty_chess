@@ -1,57 +1,21 @@
 use crate::{
-    chess::{self, piece},
+    chess::{self},
     draw::WindowParameters,
 };
 use chess::piece::Piece;
 use macroquad::{
-    color::{Color, BLACK, GRAY, ORANGE, RED, WHITE},
-    input::{
-        is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released, mouse_position,
-        MouseButton,
-    },
-    shapes::draw_rectangle,
-    texture::{load_texture, Texture2D},
+    color::{Color, BLACK, GRAY, WHITE}, input::{is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released, MouseButton}, math::Vec2, shapes::draw_rectangle, text::get_text_center, texture::{load_texture, Texture2D}
 };
 use std::{collections::HashMap, usize};
 
 #[derive(Clone)]
 pub enum GraphicsPiece {
-    Pawn {
-        texture: Texture2D,
-        color: Color,
-        x: f32,
-        y: f32,
-    },
-    Knight {
-        texture: Texture2D,
-        color: Color,
-        x: f32,
-        y: f32,
-    },
-    Bishop {
-        texture: Texture2D,
-        color: Color,
-        x: f32,
-        y: f32,
-    },
-    Rook {
-        texture: Texture2D,
-        color: Color,
-        x: f32,
-        y: f32,
-    },
-    Queen {
-        texture: Texture2D,
-        color: Color,
-        x: f32,
-        y: f32,
-    },
-    King {
-        texture: Texture2D,
-        color: Color,
-        x: f32,
-        y: f32,
-    },
+    Pawn { texture: Texture2D, color: Color, x: f32, y: f32 },
+    Knight { texture: Texture2D, color: Color, x: f32, y: f32 },
+    Bishop { texture: Texture2D, color: Color, x: f32, y: f32 },
+    Rook { texture: Texture2D, color: Color, x: f32, y: f32 },
+    Queen { texture: Texture2D, color: Color, x: f32, y: f32 },
+    King { texture: Texture2D, color: Color, x: f32, y: f32 },
 }
 
 impl GraphicsPiece {
@@ -65,21 +29,9 @@ impl GraphicsPiece {
             GraphicsPiece::King { color, x, y, .. } => (color, x, y, "K"),
         };
 
-        window_parameters.render_rectangle(
-            *piece_info.1 - parent_square.width / 4.0,
-            *piece_info.2 - parent_square.height / 4.0,
-            parent_square.width / 2.0,
-            parent_square.height / 2.0,
-            GRAY,
-        );
+        window_parameters.render_rectangle(*piece_info.1 - parent_square.width / 4.0, *piece_info.2 - parent_square.height / 4.0, parent_square.width / 2.0, parent_square.height / 2.0, GRAY);
 
-        window_parameters.render_text(
-            piece_info.3,
-            *piece_info.1,
-            *piece_info.2,
-            20.0,
-            *piece_info.0,
-        );
+        window_parameters.render_text(piece_info.3, *piece_info.1, *piece_info.2, 20.0, *piece_info.0);
     }
 }
 
@@ -173,41 +125,19 @@ impl ChessBoard {
                     }),
                     None => None,
                 };
-                squares.insert(
-                    (i, j),
-                    Square {
-                        x: i as f32 * square_width + x,
-                        y: j as f32 * square_height + y,
-                        width: square_width,
-                        height: square_height,
-                        color,
-                        graphics_piece,
-                    },
-                );
+                squares.insert((i, j), Square { x: i as f32 * square_width + x, y: j as f32 * square_height + y, width: square_width, height: square_height, color, graphics_piece });
                 color = if color == BLACK { WHITE } else { BLACK };
             }
             if grid_width_y % 2 == 0 {
                 color = if color == BLACK { WHITE } else { BLACK };
             }
         }
-        ChessBoard {
-            x,
-            y,
-            width,
-            squares,
-            held_piece: None,
-        }
+        ChessBoard { x, y, width, squares, held_piece: None }
     }
 
     pub fn render(&mut self, window_parameters: &WindowParameters) {
         for ((_i, _j), square) in &self.squares {
-            window_parameters.render_rectangle(
-                square.x,
-                square.y,
-                square.width,
-                square.height,
-                square.color,
-            );
+            window_parameters.render_rectangle(square.x, square.y, square.width, square.height, square.color);
         }
 
         for ((_i, _j), square) in &self.squares {
@@ -229,90 +159,67 @@ impl ChessBoard {
     }
 
     pub fn update(&mut self, window_parameters: &WindowParameters) {
-        let mouse_x = (mouse_position().0 - window_parameters.x_offset) / window_parameters.width;
-        let mouse_y = (mouse_position().1 - window_parameters.y_offset) / window_parameters.height;
-    
+        let (mouse_x, mouse_y) = window_parameters.mouse_position();
+
         if is_mouse_button_pressed(MouseButton::Left) {
             for ((i, j), square) in &self.squares {
-                let is_hovered = mouse_x >= square.x
-                    && mouse_x <= square.x + square.width
-                    && mouse_y >= square.y
-                    && mouse_y <= square.y + square.height;
-    
+                let is_hovered = mouse_x >= square.x && mouse_x <= square.x + square.width && mouse_y >= square.y && mouse_y <= square.y + square.height;
+
                 if is_hovered {
                     self.held_piece = Some((*i, *j));
                     break;
                 }
             }
         }
-    
+
         if let Some((i, j)) = self.held_piece {
             if let Some(square) = self.squares.get_mut(&(i, j)) {
                 if is_mouse_button_down(MouseButton::Left) {
                     if let Some(ref mut piece) = square.graphics_piece {
                         match piece {
-                            GraphicsPiece::Pawn { x, y, .. }
-                            | GraphicsPiece::Knight { x, y, .. }
-                            | GraphicsPiece::Bishop { x, y, .. }
-                            | GraphicsPiece::Rook { x, y, .. }
-                            | GraphicsPiece::Queen { x, y, .. }
-                            | GraphicsPiece::King { x, y, .. } => {
+                            GraphicsPiece::Pawn { x, y, .. } | GraphicsPiece::Knight { x, y, .. } | GraphicsPiece::Bishop { x, y, .. } | GraphicsPiece::Rook { x, y, .. } | GraphicsPiece::Queen { x, y, .. } | GraphicsPiece::King { x, y, .. } => {
                                 *x = mouse_x;
                                 *y = mouse_y;
                             }
                         }
                     }
                 } else {
-                    let new_square_pos =
-                        self.squares
-                            .iter()
-                            .find_map(|((new_i, new_j), new_square)| {
-                                let is_hovered = mouse_x >= new_square.x
-                                    && mouse_x <= new_square.x + new_square.width
-                                    && mouse_y >= new_square.y
-                                    && mouse_y <= new_square.y + new_square.height;
-                                if is_hovered {
-                                    Some((*new_i, *new_j))
-                                } else {
-                                    None
-                                }
-                            });
-    
+                    let new_square_pos = self
+                        .squares
+                        .iter()
+                        .find_map(|((new_i, new_j), new_square)| {
+                            let is_hovered = mouse_x >= new_square.x && mouse_x <= new_square.x + new_square.width && mouse_y >= new_square.y && mouse_y <= new_square.y + new_square.height;
+                            if is_hovered {
+                                Some((*new_i, *new_j))
+                            } else {
+                                None
+                            }
+                        })
+                        .or(Some((i, j)));
+
                     if let Some((new_i, new_j)) = new_square_pos {
-                        if let Some(mut piece) = self
-                            .squares
-                            .get_mut(&(i, j))
-                            .and_then(|square| square.graphics_piece.take())
-                        {
+                        if let Some(mut piece) = self.squares.get_mut(&(i, j)).and_then(|square| square.graphics_piece.take()) {
                             if let Some(new_square) = self.squares.get_mut(&(new_i, new_j)) {
-                                // Calculate the center of the new square
                                 let new_x = new_square.x + new_square.width / 2.0;
                                 let new_y = new_square.y + new_square.height / 2.0;
-    
-                                // Snap piece to the center of the new square
+
                                 match &mut piece {
-                                    GraphicsPiece::Pawn { x, y, .. }
-                                    | GraphicsPiece::Knight { x, y, .. }
-                                    | GraphicsPiece::Bishop { x, y, .. }
-                                    | GraphicsPiece::Rook { x, y, .. }
-                                    | GraphicsPiece::Queen { x, y, .. }
-                                    | GraphicsPiece::King { x, y, .. } => {
+                                    GraphicsPiece::Pawn { x, y, .. } | GraphicsPiece::Knight { x, y, .. } | GraphicsPiece::Bishop { x, y, .. } | GraphicsPiece::Rook { x, y, .. } | GraphicsPiece::Queen { x, y, .. } | GraphicsPiece::King { x, y, .. } => {
                                         *x = new_x;
                                         *y = new_y;
                                     }
                                 }
-    
+
                                 new_square.graphics_piece = Some(piece);
                             }
                         }
                     }
-    
+
                     self.held_piece = None;
                 }
             }
         }
     }
-    
 }
 
 pub struct Button {
@@ -328,77 +235,31 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(
-        x: f32,
-        y: f32,
-        width: f32,
-        height: f32,
-        label: &str,
-        color: Color,
-        hover_color: Color,
-    ) -> Self {
-        Button {
-            x,
-            y,
-            width,
-            height,
-            label: label.to_string(),
-            color,
-            hover_color,
-            is_hovered: false,
-            is_clicked: false,
-        }
+    pub fn new(x: f32, y: f32, width: f32, height: f32, label: &str, color: Color, hover_color: Color) -> Self {
+        Button { x, y, width, height, label: label.to_string(), color, hover_color, is_hovered: false, is_clicked: false }
     }
 
-    pub fn new_center_width(
-        y: f32,
-        width: f32,
-        height: f32,
-        label: &str,
-        color: Color,
-        hover_color: Color,
-    ) -> Self {
-        Button {
-            x: 0.5 - width / 2.0,
-            y,
-            width,
-            height,
-            label: label.to_string(),
-            color,
-            hover_color,
-            is_hovered: false,
-            is_clicked: false,
-        }
+    pub fn new_center_width(y: f32, width: f32, height: f32, label: &str, color: Color, hover_color: Color) -> Self {
+        Button { x: 0.5 - width / 2.0, y, width, height, label: label.to_string(), color, hover_color, is_hovered: false, is_clicked: false }
     }
 
     pub fn render(&mut self, window_parameters: &WindowParameters) {
-        let color = if self.is_hovered {
-            self.hover_color
-        } else {
-            self.color
-        };
+        let color = if self.is_hovered { self.hover_color } else { self.color };
         window_parameters.render_rectangle(self.x, self.y, self.width, self.height, color);
 
-        //let text_middle = get_text_center(&self.label, None, (window_parameters.width / 20.0) as u16, 1.0, 0.0);
+        let text_middle = get_text_center(&self.label, None, 40, 1.0, 0.0)/Vec2::new(window_parameters.width,window_parameters.height);
 
-        window_parameters.render_text(
-            &self.label,
-            self.x + (self.width / 2.0) - 1.0 / window_parameters.width,
-            self.y + (self.height / 2.0) + 1.0 / window_parameters.height,
-            20.0,
-            BLACK,
-        );
+        window_parameters.render_text(&self.label, self.x + (self.width / 2.0) - text_middle.x, self.y + (self.height / 2.0) - text_middle.y, 40.0, BLACK);
     }
 
     pub fn update(&mut self, window_parameters: &WindowParameters) {
-        let (mouse_x, mouse_y) = mouse_position();
-        let x = window_parameters.x_offset + self.x * window_parameters.width;
-        let y = window_parameters.y_offset + self.y * window_parameters.height;
-        let width = self.width * window_parameters.width;
-        let height = self.height * window_parameters.height;
+        let (mouse_x, mouse_y) = window_parameters.mouse_position();
+        let x = self.x;
+        let y = self.y;
+        let width = self.width;
+        let height = self.height;
 
-        self.is_hovered =
-            mouse_x >= x && mouse_x <= x + width && mouse_y >= y && mouse_y <= y + height;
+        self.is_hovered = mouse_x >= x && mouse_x <= x + width && mouse_y >= y && mouse_y <= y + height;
         self.is_clicked = self.is_hovered && is_mouse_button_pressed(MouseButton::Left);
     }
 }
@@ -413,19 +274,12 @@ pub struct Title {
 
 impl Title {
     pub fn new_center_width(text: &str, size: f32, y: f32, color: Color) -> Self {
-        Title {
-            text: text.to_string(),
-            size,
-            x: 0.5,
-            y,
-            color,
-        }
+        Title { text: text.to_string(), size, x: 0.5, y, color }
     }
 
     pub fn render(&mut self, window_parameters: &WindowParameters) {
-        //let text_size = measure_text(&self.text, None, (window_parameters.width / 20.0* self.size) as u16, 1.0);
-        //window_parameters.render_text(&self.text, self.x - (text_size.width/2.0)/window_parameters.width, self.y, window_parameters.width / 20.0* self.size, self.color);
-        window_parameters.render_text(&self.text, 0.1, 0.1, self.size, self.color);
+        let text_middle = get_text_center(&self.text, None, 40, 1.0, 0.0)/Vec2::new(window_parameters.width,window_parameters.height);
+        window_parameters.render_text(&self.text, self.x - text_middle.x*2.0, self.y - text_middle.y*2.0, self.size, self.color);
     }
 }
 
@@ -437,11 +291,7 @@ pub struct UIManager {
 
 impl UIManager {
     pub fn new() -> Self {
-        UIManager {
-            buttons: HashMap::new(),
-            titles: HashMap::new(),
-            chess_boards: HashMap::new(),
-        }
+        UIManager { buttons: HashMap::new(), titles: HashMap::new(), chess_boards: HashMap::new() }
     }
 
     pub fn add_button(&mut self, id: &str, button: Button) {
