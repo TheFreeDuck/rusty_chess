@@ -1,7 +1,7 @@
 use super::{piece::MoveType, Color, Coordinate, Piece};
 
 #[derive(Copy, Clone, Debug)]
-pub struct Board {
+pub struct ChessBoard {
     pub squares: [[Option<Piece>; 8]; 8],
     side_to_move: Color,
     pub white_king_position: Coordinate,
@@ -9,7 +9,7 @@ pub struct Board {
     turn_number: u16,
 }
 
-impl Board {
+impl ChessBoard {
     pub fn is_in_check(&self, color: Color) -> bool {
         let king_position = match color {
             Color::Black => self.black_king_position,
@@ -33,7 +33,7 @@ impl Board {
         return false;
     }
 
-    pub fn starting_positions() -> Board {
+    pub fn starting_positions() -> ChessBoard {
         let mut squares = [[None; 8]; 8];
 
         let positions = vec![
@@ -76,7 +76,7 @@ impl Board {
             squares[x][y] = Some(piece);
         }
 
-        Board { squares, side_to_move: Color::White, white_king_position: Coordinate::new(4, 0), black_king_position: Coordinate::new(4, 7), turn_number: 1 }
+        ChessBoard { squares, side_to_move: Color::White, white_king_position: Coordinate::new(4, 0), black_king_position: Coordinate::new(4, 7), turn_number: 1 }
     }
 
     fn reset_enpassantable_flags(&mut self) {

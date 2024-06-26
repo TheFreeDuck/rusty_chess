@@ -1,4 +1,4 @@
-use super::{coordinate::Coordinate, Board};
+use super::{coordinate::Coordinate, ChessBoard};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Piece {
@@ -27,7 +27,7 @@ pub enum CastleType{
 }
 
 impl Piece {
-    pub(crate) fn is_legal_move(&self, from: Coordinate, to: Coordinate, board: &Board) -> MoveType {
+    pub(crate) fn is_legal_move(&self, from: Coordinate, to: Coordinate, board: &ChessBoard) -> MoveType {
         if let Some(destination_piece) = board.squares[to.x_usize()][to.y_usize()] {
             if self.get_color() == destination_piece.get_color() {
                 return MoveType::Illegal;
@@ -72,7 +72,7 @@ impl Piece {
         }
     }
 
-    fn is_legal_pawn_move(from: Coordinate, to: Coordinate, board: &Board, color: Color) -> MoveType {
+    fn is_legal_pawn_move(from: Coordinate, to: Coordinate, board: &ChessBoard, color: Color) -> MoveType {
         let is_capture = match board.squares[to.x_usize()][to.y_usize()] {
             Some(_) => board.squares[to.x_usize()][to.y_usize()].unwrap().get_color() != color,
             None => false,
@@ -135,7 +135,7 @@ impl Piece {
         false
     }
 
-    pub(crate) fn is_legal_bishop_move(from: Coordinate, to: Coordinate, board: &Board) -> bool {
+    pub(crate) fn is_legal_bishop_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
         let difference = from.difference(to);
         if difference.x != difference.y {
             return false;
@@ -165,7 +165,7 @@ impl Piece {
         !is_blocked
     }
 
-    pub(crate) fn is_legal_rook_move(from: Coordinate, to: Coordinate, board: &Board) -> bool {
+    pub(crate) fn is_legal_rook_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
         let movement_vector = to.subtract(from);
         if movement_vector.x == 0 {
             let mut is_blocked = false;
@@ -219,11 +219,11 @@ impl Piece {
         false
     }
 
-    pub(crate) fn is_legal_queen_move(from: Coordinate, to: Coordinate, board: &Board) -> bool {
+    pub(crate) fn is_legal_queen_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
         Self::is_legal_rook_move(from, to, board) || Self::is_legal_bishop_move(from, to, board)
     }
 
-    pub(crate) fn is_legal_king_move(&self, from: Coordinate, to: Coordinate, board: &Board, color: Color, has_moved: bool) -> MoveType {
+    pub(crate) fn is_legal_king_move(&self, from: Coordinate, to: Coordinate, board: &ChessBoard, color: Color, has_moved: bool) -> MoveType {
         let difference = from.difference(to);
         if difference.x == 1 || difference.y == 1 {
             return MoveType::OtherLegal;
@@ -265,7 +265,7 @@ impl Piece {
         MoveType::Illegal
     }
 
-    fn is_legal_castleing_move(color: Color, board: &Board, to_x: usize, rook_x: usize, between_x: usize, y: usize) -> bool {
+    fn is_legal_castleing_move(color: Color, board: &ChessBoard, to_x: usize, rook_x: usize, between_x: usize, y: usize) -> bool {
         if let Some(Piece::Rook { has_moved, .. }) = board.squares[rook_x][y] {
             if has_moved {
                 return false;
