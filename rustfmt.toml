@@ -1,0 +1,41 @@
+# Set the maximum width of each line. You can set this to a high value to prevent wrapping.
+max_width = 2000
+
+# Control how function arguments are formatted. Setting this to "Compressed" forces them to stay on one line.
+fn_args_layout = "Compressed"
+
+# Control how function calls are formatted. Setting this to "Compressed" forces them to stay on one line.
+fn_call_width = 2000
+
+# Control how struct fields are formatted. Setting this to "Compressed" forces them to stay on one line.
+struct_field_layout = "Compressed"
+
+# Control how array elements are formatted. Setting this to "Compressed" forces them to stay on one line.
+array_layout = "Compressed"
+
+
+# Control how match arms are formatted. Setting this to "Compressed" forces them to stay on one line.
+match_arm_blocks = false
+match_blocks = false
+
+# Control how the arguments of method calls are formatted. Setting this to "Compressed" forces them to stay on one line.
+method_call_width = 2000
+
+# Control how function return types are formatted. Setting this to "Compressed" forces them to stay on one line.
+fn_return_indent = "Compressed"
+
+# Control how tuple elements are formatted. Setting this to "Compressed" forces them to stay on one line.
+tuple_layout = "Compressed"
+
+# Control how struct literals are formatted. Setting this to "Compressed" forces them to stay on one line.
+struct_lit_multiline_style = "Compressed"
+
+# Control how enum variants are formatted. Setting this to "Compressed" forces them to stay on one line.
+enum_discrim_space = false
+enum_variant_align_threshold = 2000
+
+# Prevent struct literals from being formatted in a multiline way.
+struct_lit_single_line = true
+
+# Prevent multiline struct literals for variant structures.
+enum_variant_structs = true
