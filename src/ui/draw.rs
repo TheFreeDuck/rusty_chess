@@ -39,6 +39,40 @@ impl WindowParameters {
         WindowParameters { target_aspect_ratio, x_offset: x, y_offset: y, width: width, height: height}
     }
 
+    pub fn update(&mut self){
+        let window_aspect_ratio = screen_width() / screen_height();
+
+        let width: f32;
+        let height: f32;
+        let x: f32;
+        let y: f32;
+
+        if self.target_aspect_ratio < window_aspect_ratio {
+            height = screen_height();
+            width = (height / 9.0) * 16.0;
+
+            x = (screen_width() - width) / 2.0;
+            y = 0.0;
+        } else if self.target_aspect_ratio > window_aspect_ratio {
+            width = screen_width();
+            height = (width / 16.0) * 9.0;
+
+            x = 0.0;
+            y = (screen_height() - height) / 2.0;
+        } else {
+            width = screen_width();
+            height = screen_height();
+
+            x = 0.0;
+            y = 0.0;
+        }
+
+        self.x_offset =x;
+        self.y_offset =y;
+        self.width = width;
+        self.height = height;
+    }
+
     pub fn mouse_position(&self) -> (f32, f32) {
         let mouse_x = (mouse_position().0 - self.x_offset) / self.width;
         let mouse_y = (mouse_position().1 - self.y_offset) / self.height;

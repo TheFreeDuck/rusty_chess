@@ -24,7 +24,9 @@ async fn main() {
 
     let mut board = chess::chess_board::ChessBoard::starting_positions();
 
-    let mut ui_chess_board = UIChessBoard::new(0.05, 0.05, 0.5, &board.squares, &texture);
+    let mut window_parameters = WindowParameters::new(16.0 / 9.0);
+
+    let mut ui_chess_board = UIChessBoard::new_square_board(0.05, 0.05555555555, 0.5, &board.squares, &window_parameters.target_aspect_ratio, chess::Color::Black,&texture);
 
     let mut main_menu = UIManager::new();
     main_menu.add_title("Main Title", Title::new_center_width("Rusty Chess", 70.0, 0.1, BLACK));
@@ -32,7 +34,7 @@ async fn main() {
     main_menu.add_button("Against bot", Button::new_center_width(0.5, 0.5, 0.15, "Against bot", BLUE, LIGHTGRAY));
     main_menu.add_button("Online", Button::new_center_width(0.8, 0.5, 0.15, "Online", BLUE, LIGHTGRAY));
     loop {
-        let window_parameters = WindowParameters::new(16.0 / 9.0);
+        window_parameters.update();
         window_parameters.clear(WHITE);
         draw_texture_ex(&texture, window_parameters.x_offset, window_parameters.y_offset, WHITE, DrawTextureParams { dest_size: Some(vec2(window_parameters.width, window_parameters.height)), source: None, rotation: 0.0, flip_x: false, flip_y: false, pivot: None });
 
@@ -57,7 +59,7 @@ async fn main() {
                 match ui_chess_board.request_move(&window_parameters){
                     Some(movement_proposal) => {
                         dbg!(board.move_piece(Coordinate::new(movement_proposal.0.0 as i32, movement_proposal.0.1 as i32), Coordinate::new(movement_proposal.1.0 as i32, movement_proposal.1.1 as i32)));
-                        ui_chess_board = UIChessBoard::new(0.05, 0.05, 0.5, &board.squares, &texture);
+                        ui_chess_board = UIChessBoard::new_square_board(0.05, 0.05, 0.5, &board.squares, &window_parameters.target_aspect_ratio,chess::Color::Black, &texture);
                         board.display_as_text();
                     },
                     None => (),
