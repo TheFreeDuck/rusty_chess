@@ -77,6 +77,34 @@ impl GraphicsPiece {
             *piece_info.0,
         );
     }
+
+    fn create_graphics_piece(
+        piece: Option<Piece>,
+        texture: &Texture2D,
+        square_x: f32,
+        square_y: f32,
+        square_width: f32,
+        square_height: f32,
+    ) -> Option<GraphicsPiece> {
+        piece.map(|piece| {
+            let color = match piece.get_color() {
+                chess::Color::Black => BLACK,
+                chess::Color::White => WHITE,
+            };
+            let (x, y) = (
+                square_x + square_width / 2.0,
+                square_y + square_height / 2.0,
+            );
+            match piece {
+                Piece::Pawn { .. } => GraphicsPiece::Pawn { texture: texture.clone(), color, x, y },
+                Piece::Knight { .. } => GraphicsPiece::Knight { texture: texture.clone(), color, x, y },
+                Piece::Bishop { .. } => GraphicsPiece::Bishop { texture: texture.clone(), color, x, y },
+                Piece::Rook { .. } => GraphicsPiece::Rook { texture: texture.clone(), color, x, y },
+                Piece::Queen { .. } => GraphicsPiece::Queen { texture: texture.clone(), color, x, y },
+                Piece::King { .. } => GraphicsPiece::King { texture: texture.clone(), color, x, y },
+            }
+        })
+    }
 }
 
 #[derive(Clone)]
@@ -101,78 +129,27 @@ pub struct UIChessBoard {
 impl UIChessBoard {
     pub fn new(x: f32, y: f32, width: f32, position: &[[Option<Piece>; 8]; 8], texture: &Texture2D) -> Self {
         let mut squares: HashMap<(usize, usize), Square> = HashMap::new();
-
+    
         let grid_width_x = 8;
         let grid_width_y = 8;
-
+    
         let square_width = width / grid_width_x as f32;
         let square_height = (width * 16.0 / 9.0) / grid_width_y as f32;
-
+    
         let mut color = BLACK;
+    
         for i in 0..grid_width_x {
-            for j in (0..grid_width_y).rev() {
-                let graphics_piece = match position[i][j] {
-                    Some(Piece::Pawn { color, .. }) => Some(GraphicsPiece::Pawn {
-                        texture: texture.clone(),
-                        color: match color {
-                            chess::Color::Black => BLACK,
-                            chess::Color::White => WHITE,
-                        },
-                        x: (i as f32 * square_width + x) + square_width / 2.0,
-                        y: (j as f32 * square_height + y) + square_height / 2.0,
-                    }),
-                    Some(Piece::Knight { color }) => Some(GraphicsPiece::Knight {
-                        texture: texture.clone(),
-                        color: match color {
-                            chess::Color::Black => BLACK,
-                            chess::Color::White => WHITE,
-                        },
-                        x: (i as f32 * square_width + x) + square_width / 2.0,
-                        y: (j as f32 * square_height + y) + square_height / 2.0,
-                    }),
-                    Some(Piece::Bishop { color, .. }) => Some(GraphicsPiece::Bishop {
-                        texture: texture.clone(),
-                        color: match color {
-                            chess::Color::Black => BLACK,
-                            chess::Color::White => WHITE,
-                        },
-                        x: (i as f32 * square_width + x) + square_width / 2.0,
-                        y: (j as f32 * square_height + y) + square_height / 2.0,
-                    }),
-                    Some(Piece::Rook { color, .. }) => Some(GraphicsPiece::Rook {
-                        texture: texture.clone(),
-                        color: match color {
-                            chess::Color::Black => BLACK,
-                            chess::Color::White => WHITE,
-                        },
-                        x: (i as f32 * square_width + x) + square_width / 2.0,
-                        y: (j as f32 * square_height + y) + square_height / 2.0,
-                    }),
-                    Some(Piece::Queen { color }) => Some(GraphicsPiece::Queen {
-                        texture: texture.clone(),
-                        color: match color {
-                            chess::Color::Black => BLACK,
-                            chess::Color::White => WHITE,
-                        },
-                        x: (i as f32 * square_width + x) + square_width / 2.0,
-                        y: (j as f32 * square_height + y) + square_height / 2.0,
-                    }),
-                    Some(Piece::King { color, .. }) => Some(GraphicsPiece::King {
-                        texture: texture.clone(),
-                        color: match color {
-                            chess::Color::Black => BLACK,
-                            chess::Color::White => WHITE,
-                        },
-                        x: (i as f32 * square_width + x) + square_width / 2.0,
-                        y: (j as f32 * square_height + y) + square_height / 2.0,
-                    }),
-                    None => None,
-                };
+            for j in 0..grid_width_y {
+
+                let square_x = i as f32 * square_width + x;
+                let square_y = width - j as f32 * square_height + y;
+
+                let graphics_piece = GraphicsPiece::create_graphics_piece(position[i][j], texture, square_x, square_y, square_width, square_height);
                 squares.insert(
                     (i, j),
                     Square {
-                        x: i as f32 * square_width + x,
-                        y: j as f32 * square_height + y,
+                        x: square_x,
+                        y: square_y,
                         width: square_width,
                         height: square_height,
                         color,
@@ -193,6 +170,7 @@ impl UIChessBoard {
             held_piece: None,
         }
     }
+    
 
     pub fn render(&mut self, window_parameters: &WindowParameters) {
         for ((_i, _j), square) in &self.squares {
