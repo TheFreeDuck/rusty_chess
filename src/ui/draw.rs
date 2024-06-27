@@ -1,7 +1,8 @@
 use macroquad::{color::*, input::mouse_position, shapes::*, text::draw_text, window::*};
 
 pub struct WindowParameters {
-    pub target_aspect_ratio: f32,
+    pub target_aspect_ratio: (f32,f32),
+    pub aspect_ratio_number: f32,
     pub x_offset: f32,
     pub y_offset: f32,
     pub width: f32,
@@ -9,23 +10,24 @@ pub struct WindowParameters {
 }
 
 impl WindowParameters {
-    pub fn new(target_aspect_ratio: f32) -> Self {
+    pub fn new(target_aspect_ratio: (f32,f32)) -> Self {
         let window_aspect_ratio = screen_width() / screen_height();
+        let aspect_ratio_number = target_aspect_ratio.0/target_aspect_ratio.1;
 
         let width: f32;
         let height: f32;
         let x: f32;
         let y: f32;
 
-        if target_aspect_ratio < window_aspect_ratio {
+        if aspect_ratio_number < window_aspect_ratio {
             height = screen_height();
-            width = (height / 9.0) * 16.0;
+            width = (height / target_aspect_ratio.1) * target_aspect_ratio.0;
 
             x = (screen_width() - width) / 2.0;
             y = 0.0;
-        } else if target_aspect_ratio > window_aspect_ratio {
+        } else if aspect_ratio_number > window_aspect_ratio {
             width = screen_width();
-            height = (width / 16.0) * 9.0;
+            height = (width / target_aspect_ratio.0) * target_aspect_ratio.1;
 
             x = 0.0;
             y = (screen_height() - height) / 2.0;
@@ -36,7 +38,7 @@ impl WindowParameters {
             x = 0.0;
             y = 0.0;
         }
-        WindowParameters { target_aspect_ratio, x_offset: x, y_offset: y, width: width, height: height}
+        WindowParameters { target_aspect_ratio, aspect_ratio_number, x_offset: x, y_offset: y, width: width, height: height}
     }
 
     pub fn update(&mut self){
@@ -47,15 +49,15 @@ impl WindowParameters {
         let x: f32;
         let y: f32;
 
-        if self.target_aspect_ratio < window_aspect_ratio {
+        if self.aspect_ratio_number < window_aspect_ratio {
             height = screen_height();
-            width = (height / 9.0) * 16.0;
+            width = (height / self.target_aspect_ratio.1) * self.target_aspect_ratio.0;
 
             x = (screen_width() - width) / 2.0;
             y = 0.0;
-        } else if self.target_aspect_ratio > window_aspect_ratio {
+        } else if self.aspect_ratio_number > window_aspect_ratio {
             width = screen_width();
-            height = (width / 16.0) * 9.0;
+            height = (width / self.target_aspect_ratio.0) * self.target_aspect_ratio.1;
 
             x = 0.0;
             y = (screen_height() - height) / 2.0;

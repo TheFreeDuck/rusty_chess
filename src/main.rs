@@ -24,9 +24,9 @@ async fn main() {
 
     let mut board = chess::chess_board::ChessBoard::starting_positions();
 
-    let mut window_parameters = WindowParameters::new(16.0 / 9.0);
+    let mut window_parameters = WindowParameters::new((16.0, 9.0));
 
-    let mut ui_chess_board = UIChessBoard::new_square_board(0.05, 0.05555555555, 0.5, &board.squares, &window_parameters.target_aspect_ratio, chess::Color::Black,&texture);
+    let mut ui_chess_board = UIChessBoard::new_square_board(0.05, 0.05555555555, 0.5, &board.squares, &window_parameters.aspect_ratio_number, chess::Color::White,&texture);
 
     let mut main_menu = UIManager::new();
     main_menu.add_title("Main Title", Title::new_center_width("Rusty Chess", 70.0, 0.1, BLACK));
@@ -59,7 +59,7 @@ async fn main() {
                 match ui_chess_board.request_move(&window_parameters){
                     Some(movement_proposal) => {
                         dbg!(board.move_piece(Coordinate::new(movement_proposal.0.0 as i32, movement_proposal.0.1 as i32), Coordinate::new(movement_proposal.1.0 as i32, movement_proposal.1.1 as i32)));
-                        ui_chess_board = UIChessBoard::new_square_board(0.05, 0.05, 0.5, &board.squares, &window_parameters.target_aspect_ratio,chess::Color::Black, &texture);
+                        ui_chess_board = UIChessBoard::new_square_board(0.05, 0.05, 0.5, &board.squares, &window_parameters.aspect_ratio_number,chess::Color::White, &texture);
                         board.display_as_text();
                     },
                     None => (),
