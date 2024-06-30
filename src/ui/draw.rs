@@ -103,6 +103,10 @@ impl WindowParameters {
         draw_rectangle(self.x_offset + x * self.width, self.y_offset + y * self.height, width * self.width, height * self.height, color);
     }
 
+    pub fn render_rectangle_line(&self, x: f32, y: f32, width: f32, height: f32, thickness: f32, color: Color) {
+        draw_rectangle_lines(self.x_offset + x * self.width, self.y_offset + y * self.height, width * self.width, height * self.height, thickness * self.width, color);
+    }
+
     pub fn render_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, self.x_offset + x * self.width, self.y_offset + y * self.height, font_size, color);
     }

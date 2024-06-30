@@ -4,6 +4,7 @@ use macroquad::{
 };
 use std::collections::HashMap;
 
+#[derive(Clone)]
 pub struct Button {
     pub x: f32,
     pub y: f32,

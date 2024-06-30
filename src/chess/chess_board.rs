@@ -18,19 +18,17 @@ impl ChessBoard {
 
         for y in 0..8 {
             for x in 0..8 {
-                let square = self.squares[x][y];
-                if Coordinate::new(x as i32, y as i32) != king_position {
-                    if let Some(piece) = square {
-                        if piece.get_color() != color {
-                            if piece.is_legal_move(Coordinate::new(x as i32, y as i32), king_position, self) == MoveType::OtherLegal {
-                                return true;
-                            }
+                if let Some(piece) = self.squares[x][y] {
+                    if piece.get_color() != color {
+                        let move_type = piece.is_legal_move(Coordinate::new(x as i32, y as i32), king_position, self);
+                        if matches!(move_type, MoveType::OtherLegal | MoveType::PawnCapture | MoveType::CastleShort | MoveType::CastleLong | MoveType::EnPassant) {
+                            return true;
                         }
                     }
                 }
             }
         }
-        return false;
+        false
     }
 
     pub fn starting_positions() -> ChessBoard {
@@ -92,14 +90,13 @@ impl ChessBoard {
             }
         }
     }
-    
 
     pub fn move_piece(&mut self, from: Coordinate, to: Coordinate) -> Result<(), &str> {
         self.reset_enpassantable_flags();
         if from == to {
             return Err("Piece did not move");
         }
-        if to.x >= 8 && to.y >= 8 {
+        if to.x >= 8 || to.y >= 8 || from.y >= 8 || from.y >= 8 {
             return Err("Out of bounds");
         }
         match self.squares[from.x_usize()][from.y_usize()] {
@@ -116,7 +113,14 @@ impl ChessBoard {
                     }
                     MoveType::CastleLong => {
                         self.squares[to.x_usize()][to.y_usize()] = self.squares[from.x_usize()][from.y_usize()].take();
-                        self.squares[0][to.y_usize()] = self.squares[3][to.y_usize()].take();
+                        self.squares[3][to.y_usize()] = self.squares[0][to.y_usize()].take();
+                        if let Some(Piece::King { color, ref mut has_moved }) = self.squares[to.x_usize()][to.y_usize()] {
+                            *has_moved = true;
+                            match color {
+                                Color::White => self.white_king_position = to,
+                                Color::Black => self.black_king_position = to,
+                            }
+                        }
                     }
                     MoveType::EnPassant => {
                         self.squares[to.x_usize()][to.y_usize()] = self.squares[from.x_usize()][from.y_usize()].take();
@@ -132,16 +136,22 @@ impl ChessBoard {
                         }
                         self.squares[to.x_usize()][to.y_usize()] = self.squares[from.x_usize()][from.y_usize()].take();
                     }
+                    MoveType::PawnCapture => {
+                        self.squares[to.x_usize()][to.y_usize()] = self.squares[from.x_usize()][from.y_usize()].take();
+                    }
                 }
-                self.turn_number += 1;
 
-                if let Piece::King { color, has_moved: _ } = piece {
+                if let Some(Piece::King { color, ref mut has_moved }) = self.squares[to.x_usize()][to.y_usize()] {
+                    *has_moved = true;
                     match color {
                         Color::White => self.white_king_position = to,
                         Color::Black => self.black_king_position = to,
                     }
                 }
+
+                self.turn_number += 1;
                 self.side_to_move.switch();
+
                 Ok(())
             }
         }

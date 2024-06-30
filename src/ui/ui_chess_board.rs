@@ -4,13 +4,11 @@ use crate::{
 };
 use chess::piece::Piece;
 use macroquad::{
-    color::{Color, BLACK, GRAY, WHITE},
-    input::{is_mouse_button_down, is_mouse_button_pressed, MouseButton},
-    texture::Texture2D,
+    color::{Color, BLACK, BROWN, DARKBROWN, GRAY, WHITE}, input::{is_mouse_button_down, is_mouse_button_pressed, MouseButton}, shapes::draw_rectangle_lines, texture::Texture2D
 };
 use std::{collections::HashMap, usize};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum GraphicsPiece {
     Pawn { texture: Texture2D, color: Color, x: f32, y: f32 },
     Knight { texture: Texture2D, color: Color, x: f32, y: f32 },
@@ -77,7 +75,7 @@ pub struct UIChessBoard {
 }
 
 impl UIChessBoard {
-    pub fn new_square_board(x: f32, y: f32, size: f32, position: &[[Option<Piece>; 8]; 8], aspect_ratio: &f32, play_as: ChessColor, texture: &Texture2D) -> Self {
+    pub fn new_square_board(x: f32, y: f32, size: f32, chess_position: &[[Option<Piece>; 8]; 8], aspect_ratio: &f32, play_as: ChessColor, texture: &Texture2D) -> Self {
         let width = size;
         let height = size * aspect_ratio;
 
@@ -89,7 +87,7 @@ impl UIChessBoard {
         let square_width = width / grid_width_x as f32;
         let square_height = height / grid_width_y as f32;
 
-        let mut color = BLACK;
+        let mut color = DARKBROWN;
 
         for i in 0..grid_width_x {
             for j in 0..grid_width_y {
@@ -106,58 +104,38 @@ impl UIChessBoard {
                     }
                 }
 
-                let graphics_piece = GraphicsPiece::create_graphics_piece(position[i][j], texture, square_x, square_y, square_width, square_height);
+                let graphics_piece = GraphicsPiece::create_graphics_piece(chess_position[i][j], texture, square_x, square_y, square_width, square_height);
                 squares.insert((i, j), Square { x: square_x, y: square_y, width: square_width, height: square_height, color, graphics_piece });
-                color = if color == BLACK { WHITE } else { BLACK };
+                color = if color == DARKBROWN { WHITE } else { DARKBROWN };
             }
             if grid_width_y % 2 == 0 {
-                color = if color == BLACK { WHITE } else { BLACK };
+                color = if color == DARKBROWN { WHITE } else { DARKBROWN };
             }
         }
         UIChessBoard { x, y, width, height, squares, held_piece: None, play_as }
     }
 
-    /*pub fn update(&mut self, position: &[[Option<Piece>; 8]; 8], play_as: ChessColor){
+    pub fn update(&mut self, chess_position: &[[Option<Piece>; 8]; 8], texture: &Texture2D) {
+        for i in 0..8 {
+            for j in 0..8 {
+                let square = self.squares.get_mut(&(i, j)).unwrap();
+                let current_graphics_piece = &square.graphics_piece;
+                let new_piece = &chess_position[i][j];
+                let new_graphics_piece = GraphicsPiece::create_graphics_piece(new_piece.clone(), texture, square.x, square.y, square.width, square.height);
 
-        let mut squares: HashMap<(usize, usize), Square> = HashMap::new();
-
-        let grid_width_x = 8;
-        let grid_width_y = 8;
-
-        let square_width = self.width / grid_width_x as f32;
-        let square_height = self.height / grid_width_y as f32;
-
-        let mut color = BLACK;
-
-        for i in 0..grid_width_x {
-            for j in 0..grid_width_y {
-                let square_x;
-                let square_y;
-                match play_as {
-                    ChessColor::Black => {
-                        square_x = self.width - i as f32 * square_width + - square_width + x;
-                        square_y = j as f32 * square_height + y;
-                    }
-                    ChessColor::White => {
-                        square_x = i as f32 * square_width + x;
-                        square_y = self.height - j as f32 * square_height - square_height + y;
-                    }
+                if current_graphics_piece != &new_graphics_piece {
+                    square.graphics_piece = new_graphics_piece;
                 }
-
-                let graphics_piece = GraphicsPiece::create_graphics_piece(position[i][j], texture, square_x, square_y, square_width, square_height);
-                squares.insert((i, j), Square { x: square_x, y: square_y, width: square_width, height: square_height, color, graphics_piece });
-                color = if color == BLACK { WHITE } else { BLACK };
-            }
-            if grid_width_y % 2 == 0 {
-                color = if color == BLACK { WHITE } else { BLACK };
             }
         }
-    }*/
+    }
 
     pub fn render(&mut self, window_parameters: &WindowParameters) {
         for ((_i, _j), square) in &self.squares {
             window_parameters.render_rectangle(square.x, square.y, square.width, square.height, square.color);
         }
+
+        window_parameters.render_rectangle_line(self.x, self.y, self.width, self.height,0.003, GRAY);
 
         for ((_i, _j), square) in &self.squares {
             if let Some(ref piece) = square.graphics_piece {
@@ -182,6 +160,7 @@ impl UIChessBoard {
         if let Some((i, j)) = self.held_piece {
             if let Some(_) = self.squares.get_mut(&(i, j)) {
                 if !is_mouse_button_down(MouseButton::Left) {
+                    self.held_piece = None;
                     let new_square = self.squares.iter().find_map(|((new_i, new_j), new_square)| {
                         let is_hovered = mouse_x >= new_square.x && mouse_x <= new_square.x + new_square.width && mouse_y >= new_square.y && mouse_y <= new_square.y + new_square.height;
                         if is_hovered {
@@ -189,6 +168,7 @@ impl UIChessBoard {
                         } else {
                             None
                         }
+                        
                     });
 
                     return new_square.map(|new_square| ((i, j), new_square));

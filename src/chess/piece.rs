@@ -16,14 +16,15 @@ pub enum MoveType {
     CastleLong,
     EnPassant,
     DoublePawn,
+    PawnCapture,
     OtherLegal,
     Illegal,
 }
 
 #[derive(PartialEq)]
-pub enum CastleType{
+pub enum CastleType {
     Short,
-    Long
+    Long,
 }
 
 impl Piece {
@@ -39,6 +40,8 @@ impl Piece {
         if board_after_move.is_in_check(self.get_color()) {
             return MoveType::Illegal;
         }
+
+        
 
         match self {
             Piece::Pawn { color, .. } => Piece::is_legal_pawn_move(from, to, board, *color),
@@ -74,19 +77,19 @@ impl Piece {
 
     fn is_legal_pawn_move(from: Coordinate, to: Coordinate, board: &ChessBoard, color: Color) -> MoveType {
         let is_capture = match board.squares[to.x_usize()][to.y_usize()] {
-            Some(_) => board.squares[to.x_usize()][to.y_usize()].unwrap().get_color() != color,
+            Some(piece) => piece.get_color() != color,
             None => false,
         };
 
         if is_capture {
             if color == Color::White {
-                if (to.x - from.x == 1 && to.y - from.y == 1) || to.y - from.y == -1 {
-                    return MoveType::OtherLegal;
+                if (to.x - from.x == 1 && to.y - from.y == 1) || (to.x - from.x == -1 && to.y - from.y == 1) {
+                    return MoveType::PawnCapture;
                 }
             }
             if color == Color::Black {
-                if (to.x - from.x == -1 && to.y - from.y == 1) || to.y - from.y == -1 {
-                    return MoveType::OtherLegal;
+                if (to.x - from.x == 1 && to.y - from.y == -1) || (to.x - from.x == -1 && to.y - from.y == -1) {
+                    return MoveType::PawnCapture;
                 }
             }
             return MoveType::Illegal;
@@ -94,9 +97,8 @@ impl Piece {
 
         match color {
             Color::White => {
-                
                 if from.y == 4 && to.y == 5 && (to.x == from.x + 1 || to.x == from.x - 1) {
-                    if let Some(Piece::Pawn { color: Color::Black, enpassantable_turn: Some(_)}) = board.squares[to.x_usize()][to.y_usize() - 1] {
+                    if let Some(Piece::Pawn { color: Color::Black, enpassantable_turn: Some(_) }) = board.squares[to.x_usize()][to.y_usize() - 1] {
                         return MoveType::EnPassant;
                     }
                 }
@@ -114,12 +116,23 @@ impl Piece {
             return MoveType::Illegal;
         }
 
-        let can_double_move = (from.y == 1 && color == Color::White) || (from.y == 6 && color == Color::Black);
-        if from.y.abs_diff(to.y) <= 2 && can_double_move{
+        if to.y < from.y && color == Color::White || to.y > from.y && color == Color::Black{
+            return MoveType::Illegal;
+        }
+
+        let can_double_move = match color {
+            Color::Black => from.y == 6 && !board.squares[from.x_usize()][from.y_usize() - 1].is_some(),
+            Color::White => from.y == 1 && !board.squares[from.x_usize()][from.y_usize() + 1].is_some(),
+        };
+
+        if from.y.abs_diff(to.y) <= 2 && can_double_move {
+            if let Some(_) = Some(board.squares[from.y_usize() + 1][from.x_usize()]){
+
+            }
             return MoveType::DoublePawn;
         }
 
-        if from.y.abs_diff(to.y) <= 1{
+        if from.y.abs_diff(to.y) <= 1 {
             return MoveType::OtherLegal;
         }
 
@@ -166,58 +179,32 @@ impl Piece {
     }
 
     pub(crate) fn is_legal_rook_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
+        let difference = from.difference(to);
+        
+        if difference.x != 0 && difference.y != 0 {
+            return false;
+        }
+    
         let movement_vector = to.subtract(from);
-        if movement_vector.x == 0 {
-            let mut is_blocked = false;
-            if movement_vector.y > 0 {
-                for y in from.y + 1..to.y {
-                    is_blocked = match board.squares[from.x_usize()][y as usize] {
-                        Some(_) => {
-                            return false;
-                        }
-                        None => false,
-                    };
-                }
-            } else {
-                for y in (to.y + 1..from.y).rev() {
-                    is_blocked = match board.squares[from.x_usize()][y as usize] {
-                        Some(_) => {
-                            return false;
-                        }
-                        None => false,
-                    };
-                }
+        let movement_direction = movement_vector.direction();
+        
+    
+        let mut x = from.x + movement_direction.x;
+        let mut y = from.y + movement_direction.y;
+        let x_end = to.x;
+        let y_end = to.y;
+    
+        while x != x_end || y != y_end {
+            if let Some(_) = board.squares[x as usize][y as usize] {
+                return false;
             }
-
-            return !is_blocked;
+            x += movement_direction.x;
+            y += movement_direction.y;
         }
-
-        if movement_vector.y == 0 {
-            let mut is_blocked = false;
-            if movement_vector.x > 0 {
-                for y in from.x + 1..to.x {
-                    is_blocked = match board.squares[y as usize][from.y_usize()] {
-                        Some(_) => {
-                            return false;
-                        }
-                        None => false,
-                    };
-                }
-            } else {
-                for y in (to.y + 1..from.x).rev() {
-                    is_blocked = match board.squares[y as usize][from.y_usize()] {
-                        Some(_) => {
-                            return false;
-                        }
-                        None => false,
-                    };
-                }
-            }
-
-            return !is_blocked;
-        }
-        false
+    
+        true
     }
+    
 
     pub(crate) fn is_legal_queen_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
         Self::is_legal_rook_move(from, to, board) || Self::is_legal_bishop_move(from, to, board)
@@ -225,7 +212,7 @@ impl Piece {
 
     pub(crate) fn is_legal_king_move(&self, from: Coordinate, to: Coordinate, board: &ChessBoard, color: Color, has_moved: bool) -> MoveType {
         let difference = from.difference(to);
-        if difference.x == 1 || difference.y == 1 {
+        if difference.x <= 1 && difference.y <= 1 {
             return MoveType::OtherLegal;
         }
 
@@ -237,25 +224,25 @@ impl Piece {
             Color::White => {
                 if to == Coordinate::new(6, 0) {
                     // white short castle
-                    if Piece::is_legal_castleing_move(color, board, 6, 7, 5, 0) {
+                    if Piece::is_legal_castleing_move(color, board, 6, 7, 5) {
                         return MoveType::CastleShort;
                     }
-                } else if to == Coordinate::new(1, 0) {
+                } else if to == Coordinate::new(2, 0) {
                     // white long castle
-                    if Piece::is_legal_castleing_move(color, board, 1, 0, 2, 0) {
+                    if Piece::is_legal_castleing_move(color, board, 2, 0, 3) {
                         return MoveType::CastleLong;
                     }
                 }
             }
             Color::Black => {
-                if to == Coordinate::new(6, 0) {
+                if to == Coordinate::new(6, 7) {
                     // Black short castle
-                    if Piece::is_legal_castleing_move(color, board, 6, 7, 5, 7) {
+                    if Piece::is_legal_castleing_move(color, board, 6, 7, 5) {
                         return MoveType::CastleShort;
                     }
-                } else if to == Coordinate::new(1, 0) {
+                } else if to == Coordinate::new(2, 7) {
                     // Black long castle
-                    if Piece::is_legal_castleing_move(color, board, 1, 0, 2, 7) {
+                    if Piece::is_legal_castleing_move(color, board, 2, 0, 3) {
                         return MoveType::CastleLong;
                     }
                 }
@@ -265,17 +252,21 @@ impl Piece {
         MoveType::Illegal
     }
 
-    fn is_legal_castleing_move(color: Color, board: &ChessBoard, to_x: usize, rook_x: usize, between_x: usize, y: usize) -> bool {
-        if let Some(Piece::Rook { has_moved, .. }) = board.squares[rook_x][y] {
+    fn is_legal_castleing_move(color: Color, board: &ChessBoard, to_x: usize, rook_x: usize, between_x: usize) -> bool {
+        let rank_y = match color{
+            Color::Black => 7,
+            Color::White => 0,
+        };
+        if let Some(Piece::Rook { has_moved, .. }) = board.squares[rook_x][rank_y] {
             if has_moved {
                 return false;
             }
         }
 
-        if let Some(_piece) = board.squares[to_x][y] {
+        if let Some(_piece) = board.squares[to_x][rank_y] {
             return false;
         }
-        if let Some(_piece) = board.squares[between_x][y] {
+        if let Some(_piece) = board.squares[between_x][rank_y] {
             return false;
         }
 
@@ -284,7 +275,9 @@ impl Piece {
                 let square = board.squares[x][y];
                 if let Some(piece) = square {
                     if piece.get_color() != color {
-                        if piece.is_legal_move(Coordinate::new(x as i32, y as i32), Coordinate::new(between_x as i32, y as i32), board) == MoveType::OtherLegal || piece.is_legal_move(Coordinate::new(x as i32, y as i32), Coordinate::new(to_x as i32, y as i32), board) == MoveType::OtherLegal || piece.is_legal_move(Coordinate::new(x as i32, y as i32), Coordinate::new(4, y as i32), board) == MoveType::OtherLegal {
+                        if piece.is_legal_move(Coordinate::new(x as i32, y as i32), Coordinate::new(between_x as i32, rank_y as i32), board) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x as i32, y as i32), Coordinate::new(to_x as i32, rank_y as i32), board) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x as i32, y as i32), Coordinate::new(4, rank_y as i32), board) != MoveType::Illegal {
+                            dbg!(piece);
+                            dbg!(x,y);
                             return false;
                         }
                     }

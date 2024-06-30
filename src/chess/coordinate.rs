@@ -1,7 +1,7 @@
 #[derive(Copy, Clone, Debug, Eq)]
 pub struct Coordinate {
-    pub(crate) x: i32,
-    pub(crate) y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl Coordinate {
@@ -13,9 +13,14 @@ impl Coordinate {
     }
 
     pub fn direction(&self) -> Self {
-        let movement_direction = Coordinate::new(if self.x > 0 { 1 } else { -1 }, if self.y > 0 { 1 } else { -1 });
-
-        movement_direction
+        if self.x == 0 && self.y == 0 {
+            return Coordinate::new(0, 0);
+        }
+    
+        let direction_x = if self.x > 0 { 1 } else if self.x < 0 { -1 } else { 0 };
+        let direction_y = if self.y > 0 { 1 } else if self.y < 0 { -1 } else { 0 };
+    
+        Coordinate::new(direction_x, direction_y)
     }
 
     pub fn new(x: i32, y: i32) -> Self {
