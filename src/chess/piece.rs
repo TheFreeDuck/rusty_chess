@@ -29,14 +29,14 @@ pub enum CastleType {
 
 impl Piece {
     pub(crate) fn is_legal_move(&self, from: Coordinate, to: Coordinate, board: &ChessBoard) -> MoveType {
-        if let Some(destination_piece) = board.squares[to.x_i32()][to.y_i32()] {
+        if let Some(destination_piece) = board.squares[to.x_usize()][to.y_usize()] {
             if self.get_color() == destination_piece.get_color() {
                 return MoveType::Illegal;
             }
         }
 
         let mut board_after_move = board.clone();
-        board_after_move.squares[to.x_i32()][to.y_i32()] = board_after_move.squares[from.x_i32()][from.y_i32()].take();
+        board_after_move.squares[to.x_usize()][to.y_usize()] = board_after_move.squares[from.x_usize()][from.y_usize()].take();
         if board_after_move.is_in_check(self.get_color()) {
             return MoveType::Illegal;
         }
@@ -76,19 +76,19 @@ impl Piece {
     }
 
     fn is_legal_pawn_move(from: Coordinate, to: Coordinate, board: &ChessBoard, color: Color) -> MoveType {
-        let is_capture = match board.squares[to.x_i32()][to.y_i32()] {
+        let is_capture = match board.squares[to.x_usize()][to.y_usize()] {
             Some(piece) => piece.get_color() != color,
             None => false,
         };
 
         if is_capture {
             if color == Color::White {
-                if (to.x_i32()_i32() - from.x_i32()_i32() == 1 && to.y_i32()_i32() - from.y_i32()_i32() == 1) || (to.x_i32()_i32() - from.x_i32()_i32() == -1 && to.y_i32()_i32() - from.y_i32()_i32() == 1) {
+                if (to.x - from.x == 1 && to.y - from.y == 1) || (to.x - from.x == -1 && to.y - from.y == 1) {
                     return MoveType::PawnCapture;
                 }
             }
             if color == Color::Black {
-                if (to.x_i32() as i32 - from.x_i32() as i32 == 1 && to.y_i32() as i32 - from.y_i32() as i32 == -1) || (to.x_i32() as i32 - from.x_i32() as i32 == -1 && to.y_i32() as i32 - from.y_i32() as i32 == -1) {
+                if (to.x - from.x == 1 && to.y - from.y == -1) || (to.x - from.x == -1 && to.y - from.y == -1) {
                     return MoveType::PawnCapture;
                 }
             }
@@ -97,42 +97,42 @@ impl Piece {
 
         match color {
             Color::White => {
-                if from.y_i32() == 4 && to.y_i32() == 5 && (to.x_i32() == from.x_i32() + 1 || to.x_i32() == from.x_i32() - 1) {
-                    if let Some(Piece::Pawn { color: Color::Black, enpassantable_turn: Some(_) }) = board.squares[to.x_i32()][to.y_i32() - 1] {
+                if from.y == 4 && to.y == 5 && (to.x == from.x + 1 || to.x == from.x - 1) {
+                    if let Some(Piece::Pawn { color: Color::Black, enpassantable_turn: Some(_) }) = board.squares[to.x_usize()][to.y_usize() - 1] {
                         return MoveType::EnPassant;
                     }
                 }
             }
             Color::Black => {
-                if from.y_i32() == 3 && to.y_i32() == 2 && (to.x_i32() == from.x_i32() + 1 || to.x_i32() == from.x_i32() - 1) {
-                    if let Some(Piece::Pawn { color: Color::White, enpassantable_turn: Some(_) }) = board.squares[to.x_i32()][to.y_i32() + 1] {
+                if from.y == 3 && to.y == 2 && (to.x == from.x + 1 || to.x == from.x - 1) {
+                    if let Some(Piece::Pawn { color: Color::White, enpassantable_turn: Some(_) }) = board.squares[to.x_usize()][to.y_usize() + 1] {
                         return MoveType::EnPassant;
                     }
                 }
             }
         }
 
-        if from.x_i32() != to.x_i32() {
+        if from.x != to.x {
             return MoveType::Illegal;
         }
 
-        if to.y_i32() < from.y_i32() && color == Color::White || to.y_i32() > from.y_i32() && color == Color::Black{
+        if to.y < from.y && color == Color::White || to.y > from.y && color == Color::Black{
             return MoveType::Illegal;
         }
 
         let can_double_move = match color {
-            Color::Black => from.y_i32() == 6 && !board.squares[from.x_i32()][from.y_i32() - 1].is_some(),
-            Color::White => from.y_i32() == 1 && !board.squares[from.x_i32()][from.y_i32() + 1].is_some(),
+            Color::Black => from.y == 6 && !board.squares[from.x_usize()][from.y_usize() - 1].is_some(),
+            Color::White => from.y == 1 && !board.squares[from.x_usize()][from.y_usize() + 1].is_some(),
         };
 
-        if from.y_i32().abs_diff(to.y_i32()) <= 2 && can_double_move {
-            if let Some(_) = Some(board.squares[from.y_i32() + 1][from.x_i32()]){
+        if from.y.abs_diff(to.y) <= 2 && can_double_move {
+            if let Some(_) = Some(board.squares[from.y_usize() + 1][from.x_usize()]){
 
             }
             return MoveType::DoublePawn;
         }
 
-        if from.y_i32().abs_diff(to.y_i32()) <= 1 {
+        if from.y.abs_diff(to.y) <= 1 {
             return MoveType::OtherLegal;
         }
 
@@ -160,10 +160,10 @@ impl Piece {
 
         let mut is_blocked = false;
 
-        let x_end = to.x_i32();
-        let y_end = to.y_i32();
-        let mut x = from.x_i32() + movement_direction.x;
-        let mut y = from.y_i32() + movement_direction.y;
+        let x_end = to.x;
+        let y_end = to.y;
+        let mut x = from.x + movement_direction.x;
+        let mut y = from.y + movement_direction.y;
         while x != x_end && y != y_end {
             is_blocked = match board.squares[x as usize][y as usize] {
                 Some(_) => {
@@ -189,10 +189,10 @@ impl Piece {
         let movement_direction = movement_vector.direction();
         
     
-        let mut x = from.x_i32() + movement_direction.x;
-        let mut y = from.y_i32() + movement_direction.y;
-        let x_end = to.x_i32();
-        let y_end = to.y_i32();
+        let mut x = from.x + movement_direction.x;
+        let mut y = from.y + movement_direction.y;
+        let x_end = to.x;
+        let y_end = to.y;
     
         while x != x_end || y != y_end {
             if let Some(_) = board.squares[x as usize][y as usize] {
@@ -275,7 +275,7 @@ impl Piece {
                 let square = board.squares[x][y];
                 if let Some(piece) = square {
                     if piece.get_color() != color {
-                        if piece.is_legal_move(Coordinate::new(x, y), Coordinate::new(between_x, rank_y), board) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x, y), Coordinate::new(to_x, rank_y), board) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x, y), Coordinate::new(4, rank_y), board) != MoveType::Illegal {
+                        if piece.is_legal_move(Coordinate::new(x as i32, y as i32), Coordinate::new(between_x as i32, rank_y as i32), board) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x as i32, y as i32), Coordinate::new(to_x as i32, rank_y as i32), board) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x as i32, y as i32), Coordinate::new(4, rank_y as i32), board) != MoveType::Illegal {
                             dbg!(piece);
                             dbg!(x,y);
                             return false;

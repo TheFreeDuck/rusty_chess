@@ -1,17 +1,15 @@
-use nalgebra::Vector2;
-
 #[derive(Copy, Clone, Debug, Eq)]
 pub struct Coordinate {
-    pub x: usize,
-    pub y: usize,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl Coordinate {
-    pub fn subtract(&self, other: Coordinate) -> Vector2<i32> {
-        Coordinate::new(self.x_i32() - other.x_i32(), self.y_i32() - other.y_i32())
+    pub fn subtract(&self, other: Coordinate) -> Self {
+        Coordinate::new(self.x - other.x, self.y - other.y)
     }
     pub fn difference(&self, other: Coordinate) -> Self {
-        Coordinate::new((self.x_i32() - other.x_i32()).abs(), (self.y_i32() - other.y_i32()).abs())
+        Coordinate::new((self.x - other.x).abs(), (self.y - other.y).abs())
     }
 
     pub fn direction(&self) -> Self {
@@ -19,22 +17,22 @@ impl Coordinate {
             return Coordinate::new(0, 0);
         }
     
-        let direction_x = if self.x_i32() > 0 { 1 } else if self.x_i32() < 0 { -1 } else { 0 };
-        let direction_y = if self.y_i32() > 0 { 1 } else if self.y_i32() < 0 { -1 } else { 0 };
+        let direction_x = if self.x > 0 { 1 } else if self.x < 0 { -1 } else { 0 };
+        let direction_y = if self.y > 0 { 1 } else if self.y < 0 { -1 } else { 0 };
     
         Coordinate::new(direction_x, direction_y)
     }
 
-    pub fn new(x: usize, y: usize) -> Self {
+    pub fn new(x: i32, y: i32) -> Self {
         Coordinate { x, y }
     }
 
-    pub fn x_i32(&self) -> i32 {
-        self.x as i32
+    pub fn x_usize(&self) -> usize {
+        self.x as usize
     }
 
-    pub fn y_i32(&self) -> i32 {
-        self.y as i32
+    pub fn y_usize(&self) -> usize {
+        self.y as usize
     }
 }
 

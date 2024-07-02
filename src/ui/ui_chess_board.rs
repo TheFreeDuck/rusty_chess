@@ -240,7 +240,7 @@ impl UIChessBoard {
                         .find_map(|((new_i, new_j), new_square)| {
                             let is_hovered = mouse_x >= new_square.x && mouse_x <= new_square.x + new_square.width && mouse_y >= new_square.y && mouse_y <= new_square.y + new_square.height;
                             if is_hovered {
-                                match chess_position.move_piece(Coordinate::new(i, j), Coordinate::new(*new_i, *new_j)) {
+                                match chess_position.move_piece(Coordinate::new(i as i32, j as i32), Coordinate::new(*new_i as i32, *new_j as i32)) {
                                     Ok(_) => Some((*new_i, *new_j)),
                                     Err(_) => None,
                                 }
