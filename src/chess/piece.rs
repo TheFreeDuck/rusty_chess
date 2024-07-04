@@ -1,4 +1,7 @@
-use super::{coordinate::{Coordinate, Vector}, ChessBoard};
+use super::{
+    coordinate::{Coordinate, Vector},
+    ChessBoard,
+};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Piece {
@@ -10,13 +13,32 @@ pub enum Piece {
     King { color: Color, has_moved: bool },
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum PromotionPiece {
+    Knight,
+    Bishop,
+    Rook,
+    Queen,
+}
+
+impl PromotionPiece {
+    pub fn as_piece(&self, color: Color) -> Option<Piece> {
+        match self {
+            PromotionPiece::Knight => Some(Piece::Knight { color: color }),
+            PromotionPiece::Bishop => Some(Piece::Bishop { color: color }),
+            PromotionPiece::Rook => Some(Piece::Rook { color: color , has_moved: true}),
+            PromotionPiece::Queen => Some(Piece::Queen { color: color }),
+        }
+    }
+}
+
 #[derive(PartialEq)]
 pub enum MoveType {
     CastleShort,
     CastleLong,
     EnPassant,
     DoublePawn,
-    PawnCapture,
+    Promotion,
     OtherLegal,
     Illegal,
 }
@@ -27,21 +49,42 @@ pub enum CastleType {
     Long,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum Color {
+    White,
+    Black,
+}
+
+impl Color {
+    pub fn switch(&mut self) {
+        *self = match self {
+            Color::White => Color::Black,
+            Color::Black => Color::White,
+        };
+    }
+}
+
 impl Piece {
-    pub(crate) fn is_legal_move(&self, from: Coordinate, to: Coordinate, board: &ChessBoard) -> MoveType {
+    pub fn is_legal_move(&self, from: Coordinate, to: Coordinate, board: &ChessBoard, ignore_checks: bool) -> MoveType {
         if let Some(destination_piece) = board.squares[to.x][to.y] {
             if self.get_color() == destination_piece.get_color() {
                 return MoveType::Illegal;
             }
         }
 
-        let mut board_after_move = board.clone();
-        board_after_move.squares[to.x][to.y] = board_after_move.squares[from.x][from.y].take();
-        if board_after_move.is_in_check(self.get_color()) {
-            return MoveType::Illegal;
+        if !ignore_checks {
+            let mut board_after_move = board.clone();
+            if let Some(Piece::King { color, .. }) = board.squares[from.x][from.y] {
+                match color {
+                    Color::Black => board_after_move.black_king_position = to,
+                    Color::White => board_after_move.white_king_position = to,
+                }
+            }
+            board_after_move.squares[to.x][to.y] = board_after_move.squares[from.x][from.y].take();
+            if board_after_move.is_in_check(self.get_color()) {
+                return MoveType::Illegal;
+            }
         }
-
-        
 
         match self {
             Piece::Pawn { color, .. } => Piece::is_legal_pawn_move(from, to, board, *color),
@@ -71,7 +114,7 @@ impl Piece {
                     MoveType::Illegal
                 }
             }
-            Piece::King { color, has_moved } => Piece::is_legal_king_move(self, from, to, board, *color, *has_moved),
+            Piece::King { color, has_moved } => Piece::is_legal_king_move(from, to, board, *color, *has_moved),
         }
     }
 
@@ -87,12 +130,18 @@ impl Piece {
         if is_capture {
             if color == Color::White {
                 if (to_vector.x - from_vector.x == 1 && to_vector.y - from_vector.y == 1) || (to_vector.x - from_vector.x == -1 && to_vector.y - from_vector.y == 1) {
-                    return MoveType::PawnCapture;
+                    if to.y == 7 && color == Color::White || to.y == 0 && color == Color::Black{
+                        return MoveType::Promotion;
+                    }
+                    return MoveType::OtherLegal;
                 }
             }
             if color == Color::Black {
                 if (to_vector.x - from_vector.x == 1 && to_vector.y - from_vector.y == -1) || (to_vector.x - from_vector.x == -1 && to_vector.y - from_vector.y == -1) {
-                    return MoveType::PawnCapture;
+                    if to.y == 7 && color == Color::White || to.y == 0 && color == Color::Black{
+                        return MoveType::Promotion;
+                    }
+                    return MoveType::OtherLegal;
                 }
             }
             return MoveType::Illegal;
@@ -119,7 +168,7 @@ impl Piece {
             return MoveType::Illegal;
         }
 
-        if to.y < from.y && color == Color::White || to.y > from.y && color == Color::Black{
+        if to.y < from.y && color == Color::White || to.y > from.y && color == Color::Black {
             return MoveType::Illegal;
         }
 
@@ -128,21 +177,22 @@ impl Piece {
             Color::White => from.y == 1 && !board.squares[from.x][from.y + 1].is_some(),
         };
 
-        if from.y.abs_diff(to.y) <= 2 && can_double_move {
-            if let Some(_) = Some(board.squares[from.y + 1][from.x]){
-
-            }
+        if from.y.abs_diff(to.y) == 2 && can_double_move {
+            if let Some(_) = Some(board.squares[from.y + 1][from.x]) {}
             return MoveType::DoublePawn;
         }
 
-        if from.y.abs_diff(to.y) <= 1 {
+        if from.y.abs_diff(to.y) == 1 {
+            if to.y == 7 && color == Color::White || to.y == 0 && color == Color::Black{
+                return MoveType::Promotion;
+            }
             return MoveType::OtherLegal;
         }
 
         MoveType::Illegal
     }
 
-    pub(crate) fn is_legal_knight_move(from: Coordinate, to: Coordinate) -> bool {
+    pub fn is_legal_knight_move(from: Coordinate, to: Coordinate) -> bool {
         let from_vector = from.vector();
         let to_vector = to.vector();
 
@@ -154,10 +204,10 @@ impl Piece {
         false
     }
 
-    pub(crate) fn is_legal_bishop_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
+    pub fn is_legal_bishop_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
         let from_vector = from.vector();
         let to_vector = to.vector();
-        
+
         let difference = from_vector.difference(to_vector);
         if difference.x != difference.y {
             return false;
@@ -187,25 +237,24 @@ impl Piece {
         !is_blocked
     }
 
-    pub(crate) fn is_legal_rook_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
+    pub fn is_legal_rook_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
         let from_vector = from.vector();
         let to_vector = to.vector();
-        
+
         let difference = from_vector.difference(to_vector);
-        
+
         if difference.x != 0 && difference.y != 0 {
             return false;
         }
-    
+
         let movement_vector = to_vector.subtract(from_vector);
         let movement_direction = movement_vector.direction();
-        
-    
+
         let mut x = from_vector.x + movement_direction.x;
         let mut y = from_vector.y + movement_direction.y;
         let x_end = to_vector.x;
         let y_end = to_vector.y;
-    
+
         while x != x_end || y != y_end {
             if let Some(_) = board.squares[x as usize][y as usize] {
                 return false;
@@ -213,16 +262,15 @@ impl Piece {
             x += movement_direction.x;
             y += movement_direction.y;
         }
-    
+
         true
     }
-    
 
-    pub(crate) fn is_legal_queen_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
+    pub fn is_legal_queen_move(from: Coordinate, to: Coordinate, board: &ChessBoard) -> bool {
         Self::is_legal_rook_move(from, to, board) || Self::is_legal_bishop_move(from, to, board)
     }
 
-    pub(crate) fn is_legal_king_move(&self, from: Coordinate, to: Coordinate, board: &ChessBoard, color: Color, has_moved: bool) -> MoveType {
+    pub fn is_legal_king_move(from: Coordinate, to: Coordinate, board: &ChessBoard, color: Color, has_moved: bool) -> MoveType {
         let from_vector = from.vector();
         let to_vector = to.vector();
 
@@ -268,7 +316,7 @@ impl Piece {
     }
 
     fn is_legal_castleing_move(color: Color, board: &ChessBoard, to_x: usize, rook_x: usize, between_x: usize) -> bool {
-        let rank_y = match color{
+        let rank_y = match color {
             Color::Black => 7,
             Color::White => 0,
         };
@@ -290,7 +338,7 @@ impl Piece {
                 let square = board.squares[x][y];
                 if let Some(piece) = square {
                     if piece.get_color() != color {
-                        if piece.is_legal_move(Coordinate::new(x, y), Coordinate::new(between_x, rank_y), board) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x, y), Coordinate::new(to_x, rank_y), board) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x, y), Coordinate::new(4, rank_y), board) != MoveType::Illegal {
+                        if piece.is_legal_move(Coordinate::new(x, y), Coordinate::new(between_x, rank_y), board, false) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x, y), Coordinate::new(to_x, rank_y), board, false) != MoveType::Illegal || piece.is_legal_move(Coordinate::new(x, y), Coordinate::new(4, rank_y), board, false) != MoveType::Illegal {
                             return false;
                         }
                     }
@@ -300,7 +348,7 @@ impl Piece {
         true
     }
 
-    pub(crate) fn get_color(&self) -> Color {
+    pub fn get_color(&self) -> Color {
         match self {
             Piece::Pawn { color, .. } => *color,
             Piece::Knight { color } => *color,
@@ -309,20 +357,5 @@ impl Piece {
             Piece::Queen { color } => *color,
             Piece::King { color, .. } => *color,
         }
-    }
-}
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum Color {
-    Black,
-    White,
-}
-
-impl Color {
-    pub fn switch(&mut self) {
-        *self = match self {
-            Color::White => Color::Black,
-            Color::Black => Color::White,
-        };
     }
 }

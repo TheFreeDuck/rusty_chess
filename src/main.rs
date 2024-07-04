@@ -78,7 +78,7 @@ async fn main() {
                 ui_chess_board.update_assume_logic(&window_parameters);
                 match ui_chess_board.request_move(&window_parameters) {
                     Some(movement_proposal) => {
-                        let _ = board.move_piece(Coordinate::new(movement_proposal.0 .0, movement_proposal.0 .1), Coordinate::new(movement_proposal.1 .0, movement_proposal.1 .1));
+                        let _ = board.move_piece(Coordinate::new(movement_proposal.0 .0, movement_proposal.0 .1), Coordinate::new(movement_proposal.1 .0, movement_proposal.1 .1),Some(chess::piece::PromotionPiece::Queen));
                         ui_chess_board.update(&board.squares, &texture);
                     }
                     None => (),
