@@ -1,7 +1,18 @@
-use macroquad::{color::*, input::mouse_position, shapes::*, text::draw_text, window::*};
+use std::io::Write;
+
+use macroquad::{
+    color::*,
+    input::mouse_position,
+    math::vec2,
+    shapes::*,
+    text::{draw_text, draw_text_ex},
+    texture::{self, draw_texture_ex, load_texture, DrawTextureParams, Texture2D},
+    window::*,
+};
+use tempfile::NamedTempFile;
 
 pub struct WindowParameters {
-    pub target_aspect_ratio: (f32,f32),
+    pub target_aspect_ratio: (f32, f32),
     pub aspect_ratio_number: f32,
     pub x_offset: f32,
     pub y_offset: f32,
@@ -10,9 +21,9 @@ pub struct WindowParameters {
 }
 
 impl WindowParameters {
-    pub fn new(target_aspect_ratio: (f32,f32)) -> Self {
+    pub fn new(target_aspect_ratio: (f32, f32)) -> Self {
         let window_aspect_ratio = screen_width() / screen_height();
-        let aspect_ratio_number = target_aspect_ratio.0/target_aspect_ratio.1;
+        let aspect_ratio_number = target_aspect_ratio.0 / target_aspect_ratio.1;
 
         let width: f32;
         let height: f32;
@@ -38,10 +49,10 @@ impl WindowParameters {
             x = 0.0;
             y = 0.0;
         }
-        WindowParameters { target_aspect_ratio, aspect_ratio_number, x_offset: x, y_offset: y, width: width, height: height}
+        WindowParameters { target_aspect_ratio, aspect_ratio_number, x_offset: x, y_offset: y, width: width, height: height }
     }
 
-    pub fn update(&mut self){
+    pub fn update(&mut self) {
         let window_aspect_ratio = screen_width() / screen_height();
 
         let width: f32;
@@ -69,8 +80,8 @@ impl WindowParameters {
             y = 0.0;
         }
 
-        self.x_offset =x;
-        self.y_offset =y;
+        self.x_offset = x;
+        self.y_offset = y;
         self.width = width;
         self.height = height;
     }
@@ -110,4 +121,19 @@ impl WindowParameters {
     pub fn render_text(&self, text: &str, x: f32, y: f32, font_size: f32, color: Color) {
         draw_text(text, self.x_offset + x * self.width, self.y_offset + y * self.height, font_size, color);
     }
+
+    pub fn render_texture(&self, x: f32, y: f32, width: f32, height: f32, texture: &Texture2D) {
+        draw_texture_ex(texture, self.x_offset + x * self.width, self.y_offset + y * self.height, WHITE, DrawTextureParams { dest_size: Some(vec2(width * self.width, height * self.height)), source: None, rotation: 0.0, flip_x: false, flip_y: false, pivot: None });
+    }
+}
+
+pub async fn load_texture_from_bytes(bytes: &[u8]) -> Result<Texture2D, Box<dyn std::error::Error>> {
+    let mut temp_file = NamedTempFile::new()?;
+
+    temp_file.write_all(bytes)?;
+
+    let file_path = temp_file.path().to_str().ok_or("Failed to convert path to str")?;
+
+    let texture = load_texture(file_path).await?;
+    Ok(texture)
 }

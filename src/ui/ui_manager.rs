@@ -60,6 +60,10 @@ impl Title {
         Title { text: text.to_string(), size, x: 0.5, y, color }
     }
 
+    pub fn new(text: &str, size: f32, x: f32, y: f32, color: Color) -> Self {
+        Title { text: text.to_string(), size, x: x, y, color }
+    }
+
     pub fn render(&mut self, window_parameters: &WindowParameters) {
         let text_middle = get_text_center(&self.text, None, 40, 1.0, 0.0)/Vec2::new(window_parameters.width,window_parameters.height);
         window_parameters.render_text(&self.text, self.x - text_middle.x*2.0, self.y - text_middle.y*2.0, self.size, self.color);
@@ -82,6 +86,10 @@ impl UIManager {
 
     pub fn add_title(&mut self, id: &str, title: Title) {
         self.titles.insert(id.to_string(), title);
+    }
+
+    pub fn remove_title(&mut self, id: &str){
+        self.titles.remove(id);
     }
 
 

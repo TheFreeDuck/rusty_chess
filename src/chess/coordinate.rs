@@ -9,6 +9,10 @@ impl Coordinate {
         Coordinate { x, y }
     }
 
+    pub fn from_tuple_usize(tuple: (usize, usize)) -> Self {
+        Coordinate::new(tuple.0, tuple.1)
+    }
+
     pub fn vector(&self) -> Vector {
         Vector::new(self.x_i32(), self.y_i32())
     }

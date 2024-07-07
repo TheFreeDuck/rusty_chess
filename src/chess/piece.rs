@@ -49,7 +49,7 @@ pub enum CastleType {
     Long,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Hash, Eq)]
 pub enum Color {
     White,
     Black,

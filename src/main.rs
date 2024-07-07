@@ -1,13 +1,17 @@
+#![windows_subsystem = "windows"]
+
 pub mod chess;
 pub mod ui;
-use chess::Coordinate;
+use std::process::exit;
+
+use chess::ChessBoard;
 use draw::WindowParameters;
 use macroquad::prelude::*;
-use ui::{draw, ui_chess_board::UIChessBoard, ui_manager};
-use ui_manager::{Button, Title, UIManager};
+use ui::{draw, layouts, ui_chess_board::UIChessBoard, ui_manager};
+use ui_manager::Title;
 
 fn window_conf() -> Conf {
-    Conf { window_title: "Rusty Chess".to_owned(), window_width: 1600, window_height: 900, icon: None ,window_resizable: true, ..Default::default()}
+    Conf { window_title: "Rusty Chess".to_owned(), window_width: 1600, window_height: 900, icon: None, window_resizable: true, fullscreen: true, ..Default::default() }
 }
 
 pub enum GameState {
@@ -19,40 +23,39 @@ pub enum GameState {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let texture: Texture2D = load_texture("background.png").await.unwrap();
+    let texture = draw::load_texture_from_bytes(include_bytes!("../res/background.png")).await.unwrap();
+
     let mut game_state = GameState::Menu;
 
     let mut board = chess::chess_board::ChessBoard::starting_positions();
 
     let mut window_parameters = WindowParameters::new((16.0, 9.0));
 
-    let mut ui_chess_board = UIChessBoard::new_square_board(0.05, 0.05555555555, 0.5, &board.squares, &window_parameters.aspect_ratio_number, chess::Color::White, &texture);
+    let textures = ui::ui_chess_board::load_piece_textures().await;
 
+    let mut ui_chess_board = UIChessBoard::new(0.05, 0.05555555555, 0.5, &board.squares, &window_parameters.aspect_ratio_number, chess::Color::White, textures);
 
-    let mut main_menu = UIManager::new();
-    main_menu.add_title("Main Title", Title::new_center_width("Rusty Chess", 70.0, 0.1, BLACK));
-    main_menu.add_button("Against yourself", Button::new_center_width(0.2, 0.5, 0.15, "Against yourself", BLUE, LIGHTGRAY));
-    main_menu.add_button("Against bot", Button::new_center_width(0.5, 0.5, 0.15, "Against bot", BLUE, LIGHTGRAY));
-    main_menu.add_button("Online", Button::new_center_width(0.8, 0.5, 0.15, "Online", BLUE, LIGHTGRAY));
+    let mut main_menu = layouts::main_menu();
 
-    let back_button = Button::new(0.001, 0.001, 0.07, 0.04, "Back", GRAY, LIGHTGRAY);
+    let mut against_yourself = layouts::against_yourself();
 
-    let mut against_yourself = UIManager::new();
-    against_yourself.add_button("Back", back_button.clone());
+    let mut against_bot = layouts::against_bot();
 
-    let mut against_bot = UIManager::new();
-    against_bot.add_button("Back", back_button.clone());
-    against_bot.add_title("Not Implmented", Title::new_center_width("Not Implmented", 90.0, 0.4, RED));
+    let mut online = layouts::online();
 
-    let mut online = UIManager::new();
-    online.add_button("Back", back_button.clone());
-    online.add_title("Not Implmented", Title::new_center_width("Not Implmented", 90.0, 0.4, RED));
+    let mut is_fullscreen = true;
 
     loop {
         window_parameters.update();
-        window_parameters.clear(WHITE);
-        draw_texture_ex(&texture, window_parameters.x_offset, window_parameters.y_offset, WHITE, DrawTextureParams { dest_size: Some(vec2(window_parameters.width, window_parameters.height)), source: None, rotation: 0.0, flip_x: false, flip_y: false, pivot: None });
+        window_parameters.clear(BEIGE);
+        window_parameters.render_texture(0.0, 0.0, 1.0, 1.0, &texture);
         
+        if is_key_pressed(KeyCode::F11){
+            is_fullscreen = !is_fullscreen;
+            set_fullscreen(is_fullscreen);
+
+        }
+
 
         match game_state {
             GameState::Menu => {
@@ -68,20 +71,44 @@ async fn main() {
                 if main_menu.was_button_clicked("Online") {
                     game_state = GameState::Online;
                 }
+                if main_menu.was_button_clicked("Quit") {
+                    exit(0);
+                }
             }
             GameState::AgainstYourself => {
                 if against_yourself.was_button_clicked("Back") {
                     game_state = GameState::Menu;
                 }
+                if against_yourself.was_button_clicked("Reset") {
+                    ui_chess_board.flip(&board.squares);
+                    ui_chess_board.flip(&board.squares);
+                    board = ChessBoard::starting_positions();
+                    ui_chess_board.update(&board.squares);
+                    against_yourself.remove_title("Win");
+                    against_yourself.remove_title("Draw");
+                }
+                if against_yourself.was_button_clicked("Flip") {
+                    ui_chess_board.flip(&board.squares);
+                }
 
                 against_yourself.update(&window_parameters);
                 ui_chess_board.update_assume_logic(&window_parameters);
-                match ui_chess_board.request_move(&window_parameters) {
-                    Some(movement_proposal) => {
-                        let _ = board.move_piece(Coordinate::new(movement_proposal.0 .0, movement_proposal.0 .1), Coordinate::new(movement_proposal.1 .0, movement_proposal.1 .1),Some(chess::piece::PromotionPiece::Queen));
-                        ui_chess_board.update(&board.squares, &texture);
+                let movement_proposal = ui_chess_board.request_move(&window_parameters);
+                if let Some(coord) = movement_proposal.0 {
+                    let result = board.move_piece(coord.0, coord.1, movement_proposal.1);
+                    ui_chess_board.check_result(result);
+                    ui_chess_board.update(&board.squares);
+                }
+                match ui_chess_board.game_status {
+                    chess::chess_board::GameStatus::Ongoing => {}
+                    chess::chess_board::GameStatus::Draw => against_yourself.add_title("Draw", Title::new_center_width("Draw", 90.0, 0.4, RED)),
+                    chess::chess_board::GameStatus::Win(color) => {
+                        let win_string = match color {
+                            chess::Color::White => "White won",
+                            chess::Color::Black => "Black won",
+                        };
+                        against_yourself.add_title("Win", Title::new(win_string, 60.0, 0.85, 0.4, BLACK))
                     }
-                    None => (),
                 }
 
                 against_yourself.render(&window_parameters);
@@ -102,7 +129,6 @@ async fn main() {
                 }
             }
         }
-
         window_parameters.clear_outside(BLACK);
         next_frame().await
     }

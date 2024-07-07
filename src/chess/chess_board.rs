@@ -21,6 +21,14 @@ pub enum GameStatus {
     Win(Color),
 }
 
+pub enum MoveError{
+    PieceMovedToSameSquare,
+    OutOfBounds,
+    NoPieceToMove,
+    NotYourTurn,
+    IllegalMove,
+}
+
 impl ChessBoard {
     pub fn check_game_status(&self) -> GameStatus {
         let moves = self.all_legal_moves();
@@ -35,8 +43,23 @@ impl ChessBoard {
         GameStatus::Ongoing
     }
 
+    pub fn get_legal_moves_for_piece_at(&self, piece_coordiante: Coordinate) -> Vec<Coordinate> {
+        let mut legal_moves = Vec::<Coordinate>::new();
+        if let Some(piece) = self.squares[piece_coordiante.x][piece_coordiante.y] {
+            for to_x in 0..8 {
+                for to_y in 0..8 {
+                    let to = Coordinate::new(to_x, to_y);
+                    if piece.is_legal_move(piece_coordiante, to, self, false) != MoveType::Illegal {
+                        legal_moves.push(to);
+                    }
+                }
+            }
+        }
+
+        legal_moves
+    }
+
     pub fn all_legal_moves(&self) -> Vec<(Coordinate, Coordinate)> {
-        //dont judge PLZ
         let color: Color;
         if self.turn_number % 2 == 0 {
             color = Color::Black;
@@ -75,8 +98,7 @@ impl ChessBoard {
             for x in 0..8 {
                 if let Some(piece) = self.squares[x][y] {
                     if piece.get_color() != color {
-                        let move_type = piece.is_legal_move(Coordinate::new(x, y), king_position, self, true);
-                        if matches!(move_type, MoveType::OtherLegal | MoveType::CastleShort | MoveType::CastleLong | MoveType::EnPassant) {
+                        if piece.is_legal_move(Coordinate::new(x, y), king_position, self, true) != MoveType::Illegal{
                             return true;
                         }
                     }
@@ -146,19 +168,21 @@ impl ChessBoard {
         }
     }
 
-    pub fn move_piece(&mut self, from: Coordinate, to: Coordinate, promotion: Option<PromotionPiece>) -> Result<GameStatus, &str> {
+    pub fn move_piece(&mut self, from: (usize,usize), to: (usize,usize), promotion: Option<PromotionPiece>) -> Result<GameStatus, MoveError> {
+        let from = Coordinate::from_tuple_usize(from);
+        let to = Coordinate::from_tuple_usize(to);
         self.reset_enpassantable_flags();
         if from == to {
-            return Err("Piece did not move");
+            return Err(MoveError::PieceMovedToSameSquare);
         }
         if to.x >= 8 || to.y >= 8 || from.y >= 8 || from.y >= 8 {
-            return Err("Out of bounds");
+            return Err(MoveError::OutOfBounds);
         }
         match self.squares[from.x][from.y] {
-            None => Err("There is not a piece here!"),
+            None => Err(MoveError::NoPieceToMove),
             Some(piece) => {
                 if piece.get_color() != self.side_to_move {
-                    return Err("Not your turn");
+                    return Err(MoveError::NotYourTurn);
                 }
 
                 match piece.is_legal_move(from, to, self, false) {
@@ -197,7 +221,7 @@ impl ChessBoard {
                             None => (),
                         }
                     }
-                    MoveType::Illegal => return Err("illegal move"),
+                    MoveType::Illegal => return Err(MoveError::IllegalMove),
                 }
 
                 if let Some(Piece::King { color, ref mut has_moved }) = self.squares[to.x][to.y] {
@@ -214,10 +238,7 @@ impl ChessBoard {
                 let game_status = self.check_game_status();
 
                 match game_status {
-                    GameStatus::Ongoing => {
-                       
-                        
-                    }
+                    GameStatus::Ongoing => {}
                     GameStatus::Draw => {
                         self.game_status = game_status;
                     }
