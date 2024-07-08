@@ -73,6 +73,7 @@ impl ChessBoard {
             for j in 1..all_positions.len() {
                 if all_positions.get(i) == all_positions.get(j) {
                     repetitions += 1;
+                    dbg!(repetitions);
                 }
                 if repetitions >= 3 {
                     return GameStatus::Draw(DrawType::Repetion);
