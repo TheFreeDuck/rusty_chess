@@ -2,20 +2,22 @@ use crate::{
     chess::{
         self,
         chess_board::{GameStatus, MoveError},
-        piece::PromotionPiece,
-        ChessBoard, Color as ChessColor,
+        piece::PromotionPiece, Color as ChessColor,
     },
     draw::WindowParameters,
 };
 use chess::piece::Piece;
 use macroquad::{
-    color::{Color, BLACK, DARKBROWN, GRAY, WHITE},
+    color::{Color, BROWN, GRAY},
     input::{is_mouse_button_down, is_mouse_button_pressed, MouseButton},
-    texture::{self, Texture2D},
+    texture::Texture2D,
 };
 use std::{collections::HashMap, usize};
 
 use super::draw::load_texture_from_bytes;
+
+const WHITE_SQUARE_COLOR: Color = Color::new(0.860, 0.767, 0.64, 1.0);
+const BLACK_SQUARE_COLOR: Color = BROWN;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub enum PieceType {
@@ -28,68 +30,34 @@ pub enum PieceType {
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct GraphicsPiecee{
+pub struct GraphicsPiece {
     piece_type: PieceType,
-    x: f32, 
+    x: f32,
     y: f32,
-    texture: Texture2D, 
-    color: Color, 
-}
-
-#[derive(Clone, PartialEq, Debug)]
-pub enum GraphicsPiece {
-    Pawn { texture: Texture2D, color: Color, x: f32, y: f32 },
-    Knight { texture: Texture2D, color: Color, x: f32, y: f32 },
-    Bishop { texture: Texture2D, color: Color, x: f32, y: f32 },
-    Rook { texture: Texture2D, color: Color, x: f32, y: f32 },
-    Queen { texture: Texture2D, color: Color, x: f32, y: f32 },
-    King { texture: Texture2D, color: Color, x: f32, y: f32 },
+    texture: Texture2D,
 }
 
 impl GraphicsPiece {
-    pub fn render(&self, window_parameters: &WindowParameters, parent_square: &Square) {
-        let piece_info = match self {
-            GraphicsPiece::Pawn { color, x, y, texture } => (color, x, y, "P", texture),
-            GraphicsPiece::Knight { color, x, y, texture } => (color, x, y, "Kn", texture),
-            GraphicsPiece::Bishop { color, x, y, texture } => (color, x, y, "B", texture),
-            GraphicsPiece::Rook { color, x, y, texture } => (color, x, y, "R", texture),
-            GraphicsPiece::Queen { color, x, y, texture } => (color, x, y, "Q", texture),
-            GraphicsPiece::King { color, x, y, texture } => (color, x, y, "K", texture),
-        };
-
-        window_parameters.render_rectangle(*piece_info.1 - parent_square.width / 4.0, *piece_info.2 - parent_square.height / 4.0, parent_square.width / 2.0, parent_square.height / 2.0, GRAY);
-        window_parameters.render_text(piece_info.3, *piece_info.1, *piece_info.2, 20.0, *piece_info.0);
-        window_parameters.render_texture(*piece_info.1 - parent_square.width / 4.0, *piece_info.2 - parent_square.height / 4.0, parent_square.width / 2.0, parent_square.height / 2.0, piece_info.4);
-        
-    }
-
-    fn from_chess_piece(piece: Option<Piece>, square_x: f32, square_y: f32, square_width: f32, square_height: f32, texture: Texture2D) -> Option<GraphicsPiece> {
-        piece.map(|piece| {
-            let color = match piece.get_color() {
-                chess::Color::Black => BLACK,
-                chess::Color::White => WHITE,
+    fn from_chess_piece(piece: Option<Piece>, square_x: f32, square_y: f32, square_width: f32, square_height: f32, textures: HashMap<PieceType,Texture2D>) -> Option<GraphicsPiece> {
+        if let Some(piece) = piece {
+            let piece_type = match piece {
+                Piece::Pawn { color, .. } => PieceType::Pawn(color),
+                Piece::Knight { color, .. } => PieceType::Knight(color),
+                Piece::Bishop { color, .. } => PieceType::Bishop(color),
+                Piece::Rook { color, .. } => PieceType::Rook(color),
+                Piece::Queen { color, .. } => PieceType::Queen(color),
+                Piece::King { color, .. } => PieceType::King(color),
             };
-            let (x, y) = (square_x + square_width / 2.0, square_y + square_height / 2.0);
-            match piece {
-                Piece::Pawn { .. } => GraphicsPiece::Pawn { texture, color, x, y },
-                Piece::Knight { .. } => GraphicsPiece::Knight { texture: Texture2D::empty(), color, x, y },
-                Piece::Bishop { .. } => GraphicsPiece::Bishop { texture: Texture2D::empty(), color, x, y },
-                Piece::Rook { .. } => GraphicsPiece::Rook { texture: Texture2D::empty(), color, x, y },
-                Piece::Queen { .. } => GraphicsPiece::Queen { texture: Texture2D::empty(), color, x, y },
-                Piece::King { .. } => GraphicsPiece::King { texture: Texture2D::empty(), color, x, y },
+            match textures.get(&piece_type){
+                Some(texture) => return Some(GraphicsPiece { piece_type, x: square_x + square_width/2.0, y: square_y + square_height/2.0, texture: texture.to_owned() }),
+                None => return None,
             }
-        })
+        }
+        None
     }
 
-    pub fn get_color(&self) -> Color {
-        match self {
-            GraphicsPiece::Pawn { color, .. } => *color,
-            GraphicsPiece::Knight { color, .. } => *color,
-            GraphicsPiece::Bishop { color, .. } => *color,
-            GraphicsPiece::Rook { color, .. } => *color,
-            GraphicsPiece::Queen { color, .. } => *color,
-            GraphicsPiece::King { color, .. } => *color,
-        }
+    pub fn render(&self, window_parameters: &WindowParameters, parent_square: &Square) {
+        window_parameters.render_texture(self.x - parent_square.width/2.0, self.y - parent_square.height/2.0, parent_square.width, parent_square.height, &self.texture);
     }
 }
 
@@ -115,6 +83,7 @@ pub struct UIChessBoard {
     promotion: Option<PromotionPiecesPopup>,
     pub game_status: GameStatus,
     pub textures: HashMap<PieceType, Texture2D>,
+    window_aspect_ratio: f32,
 }
 
 #[derive(Clone, Debug)]
@@ -127,25 +96,40 @@ struct PromotionPiecesPopup {
 
 pub async fn load_piece_textures() -> HashMap<PieceType, Texture2D> {
     let mut textures: HashMap<PieceType, Texture2D> = HashMap::new();
-    let white_pawn = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
-    let white_knight = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
-    let white_bishop = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
-    let white_queen = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
-    let white_king = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
+    let white_pawn = load_texture_from_bytes(include_bytes!("../../res/white_pawn.png")).await.unwrap();
+    let white_knight = load_texture_from_bytes(include_bytes!("../../res/white_knight.png")).await.unwrap();
+    let white_bishop = load_texture_from_bytes(include_bytes!("../../res/white_bishop.png")).await.unwrap();
+    let white_rook = load_texture_from_bytes(include_bytes!("../../res/white_rook.png")).await.unwrap();
+    let white_queen = load_texture_from_bytes(include_bytes!("../../res/white_queen.png")).await.unwrap();
+    let white_king = load_texture_from_bytes(include_bytes!("../../res/white_king.png")).await.unwrap();
 
-    let black_pawn = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
-    let black_knight = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
-    let black_bishop = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
-    let black_queen = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
-    let black_king = load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap();
-    textures.insert(PieceType::Pawn(ChessColor::White), load_texture_from_bytes(include_bytes!("../../res/pawn.png")).await.unwrap());
+    let black_pawn = load_texture_from_bytes(include_bytes!("../../res/black_pawn.png")).await.unwrap();
+    let black_knight = load_texture_from_bytes(include_bytes!("../../res/black_knight.png")).await.unwrap();
+    let black_bishop = load_texture_from_bytes(include_bytes!("../../res/black_bishop.png")).await.unwrap();
+    let black_rook = load_texture_from_bytes(include_bytes!("../../res/black_rook.png")).await.unwrap();
+    let black_queen = load_texture_from_bytes(include_bytes!("../../res/black_queen.png")).await.unwrap();
+    let black_king = load_texture_from_bytes(include_bytes!("../../res/black_king.png")).await.unwrap();
+    textures.insert(PieceType::Pawn(ChessColor::White), white_pawn);
+    textures.insert(PieceType::Knight(ChessColor::White), white_knight);
+    textures.insert(PieceType::Bishop(ChessColor::White), white_bishop);
+    textures.insert(PieceType::Rook(ChessColor::White), white_rook);
+    textures.insert(PieceType::Queen(ChessColor::White), white_queen);
+    textures.insert(PieceType::King(ChessColor::White), white_king);
+
+    textures.insert(PieceType::Pawn(ChessColor::Black), black_pawn);
+    textures.insert(PieceType::Knight(ChessColor::Black), black_knight);
+    textures.insert(PieceType::Bishop(ChessColor::Black), black_bishop);
+    textures.insert(PieceType::Rook(ChessColor::Black), black_rook);
+    textures.insert(PieceType::Queen(ChessColor::Black), black_queen);
+    textures.insert(PieceType::King(ChessColor::Black), black_king);
+
     textures
 }
 
 impl UIChessBoard {
-    pub fn new(x: f32, y: f32, size: f32, chess_position: &[[Option<Piece>; 8]; 8], aspect_ratio: &f32, play_as: ChessColor, textures: HashMap<PieceType, Texture2D>) -> Self {
+    pub fn new(x: f32, y: f32, size: f32, chess_position: &[[Option<Piece>; 8]; 8], window_aspect_ratio: &f32, play_as: ChessColor, textures: HashMap<PieceType, Texture2D>) -> Self {
         let width = size;
-        let height = size * aspect_ratio;
+        let height = size * window_aspect_ratio;
 
         let mut squares: HashMap<(usize, usize), Square> = HashMap::new();
 
@@ -155,7 +139,10 @@ impl UIChessBoard {
         let square_width = width / grid_width_x as f32;
         let square_height = height / grid_width_y as f32;
 
-        let mut color = DARKBROWN;
+
+
+        let mut is_square_white = true;
+        let mut color = BLACK_SQUARE_COLOR;
 
         for i in 0..grid_width_x {
             for j in 0..grid_width_y {
@@ -171,16 +158,17 @@ impl UIChessBoard {
                         square_y = height - j as f32 * square_height - square_height + y;
                     }
                 }
-
-                let graphics_piece = GraphicsPiece::from_chess_piece(chess_position[i][j], square_x, square_y, square_width, square_height, textures.get(&0).unwrap().clone());
+                let graphics_piece = GraphicsPiece::from_chess_piece(chess_position[i][j], square_x, square_y, square_width, square_height, textures.clone());
                 squares.insert((i, j), Square { x: square_x, y: square_y, width: square_width, height: square_height, color, graphics_piece });
-                color = if color == DARKBROWN { WHITE } else { DARKBROWN };
+                color = if is_square_white { WHITE_SQUARE_COLOR } else { BLACK_SQUARE_COLOR };
+                is_square_white = !is_square_white;
             }
             if grid_width_y % 2 == 0 {
-                color = if color == DARKBROWN { WHITE } else { DARKBROWN };
+                color = if is_square_white { WHITE_SQUARE_COLOR } else { BLACK_SQUARE_COLOR };
+                is_square_white = !is_square_white;
             }
         }
-        UIChessBoard { x, y, width, height, squares, held_piece: None, play_as, promotion: None, game_status: GameStatus::Ongoing, textures }
+        UIChessBoard { x, y, width, height, squares, held_piece: None, play_as, promotion: None, game_status: GameStatus::Ongoing, textures, window_aspect_ratio: window_aspect_ratio.to_owned() }
     }
 
     pub fn update(&mut self, chess_position: &[[Option<Piece>; 8]; 8]) {
@@ -189,7 +177,7 @@ impl UIChessBoard {
                 let square = self.squares.get_mut(&(i, j)).unwrap();
                 let current_graphics_piece = &square.graphics_piece;
                 let new_piece = &chess_position[i][j];
-                let new_graphics_piece = GraphicsPiece::from_chess_piece(new_piece.clone(), square.x, square.y, square.width, square.height, self.textures.get(&0).unwrap().clone());
+                let new_graphics_piece = GraphicsPiece::from_chess_piece(new_piece.clone(), square.x, square.y, square.width, square.height, self.textures.clone());
 
                 if current_graphics_piece != &new_graphics_piece {
                     square.graphics_piece = new_graphics_piece;
@@ -199,21 +187,22 @@ impl UIChessBoard {
     }
 
     pub fn reset_board(&mut self, chess_position: &[[Option<Piece>; 8]; 8]) {
-        *self = UIChessBoard::new(self.x, self.y, self.width, chess_position, &(16.0 / 9.0), self.play_as, self.textures.clone());
+        *self = UIChessBoard::new(self.x, self.y, self.width, chess_position, &self.window_aspect_ratio, self.play_as, self.textures.clone());
     }
 
     pub fn flip(&mut self, chess_position: &[[Option<Piece>; 8]; 8]) {
         match self.play_as {
             ChessColor::White => {
-                *self = UIChessBoard::new(self.x, self.y, self.width, chess_position, &(16.0 / 9.0), ChessColor::Black, self.textures.clone());
+                *self = UIChessBoard::new(self.x, self.y, self.width, chess_position, &self.window_aspect_ratio, ChessColor::Black, self.textures.clone());
             }
             ChessColor::Black => {
-                *self = UIChessBoard::new(self.x, self.y, self.width, chess_position, &(16.0 / 9.0), ChessColor::White, self.textures.clone());
+                *self = UIChessBoard::new(self.x, self.y, self.width, chess_position, &self.window_aspect_ratio, ChessColor::White, self.textures.clone());
             }
         }
     }
 
     pub fn render(&mut self, window_parameters: &WindowParameters) {
+        window_parameters.render_rectangle_line(self.x - 0.001, self.y - 0.002, self.width + 0.002, self.height + 0.004, 0.003, GRAY);
         for ((_i, _j), square) in &self.squares {
             window_parameters.render_rectangle(square.x, square.y, square.width, square.height, square.color);
         }
@@ -242,8 +231,6 @@ impl UIChessBoard {
             }
         }
 
-        window_parameters.render_rectangle_line(self.x, self.y, self.width, self.height, 0.003, GRAY);
-
         match self.held_piece {
             Some(held_piece) => match self.squares.get(&held_piece) {
                 Some(square) => {
@@ -270,7 +257,7 @@ impl UIChessBoard {
             };
             let mut promotion_square = self.squares.get(&(promotion_x, square_y as usize)).unwrap().clone();
             promotion_square.color = Color::new(0.2, 0.2, 0.2, 1.0);
-            promotion_square.graphics_piece = GraphicsPiece::from_chess_piece(Some(piece), promotion_square.x, promotion_square.y, promotion_square.width, promotion_square.height, self.textures.get(&0).unwrap().clone());
+            promotion_square.graphics_piece = GraphicsPiece::from_chess_piece(Some(piece), promotion_square.x, promotion_square.y, promotion_square.width, promotion_square.height, self.textures.clone());
             squares.push(promotion_square);
 
             square_y += increment;
@@ -297,11 +284,11 @@ impl UIChessBoard {
                 let is_hovered = mouse_x >= square.x && mouse_x <= square.x + square.width && mouse_y >= square.y && mouse_y <= square.y + square.height;
                 if is_hovered {
                     if let Some(ref piece) = square.graphics_piece {
-                        let piece = match piece {
-                            GraphicsPiece::Queen { .. } => Some(PromotionPiece::Queen),
-                            GraphicsPiece::Knight { .. } => Some(PromotionPiece::Knight),
-                            GraphicsPiece::Rook { .. } => Some(PromotionPiece::Rook),
-                            GraphicsPiece::Bishop { .. } => Some(PromotionPiece::Bishop),
+                        let piece = match piece.piece_type {
+                            PieceType::Queen { .. } => Some(PromotionPiece::Queen),
+                            PieceType::Knight { .. } => Some(PromotionPiece::Knight),
+                            PieceType::Rook { .. } => Some(PromotionPiece::Rook),
+                            PieceType::Bishop { .. } => Some(PromotionPiece::Bishop),
                             _ => None,
                         };
                         self.promotion = None;
@@ -348,8 +335,8 @@ impl UIChessBoard {
 
                     if let Some(new_square) = new_square {
                         if let Some(ref piece) = self.squares.get(&(i, j)).unwrap().graphics_piece {
-                            if let GraphicsPiece::Pawn { .. } = piece {
-                                if piece.get_color() == WHITE {
+                            if let PieceType::Pawn(color) = piece.piece_type {
+                                if color == ChessColor::White {
                                     if new_square.1 == 7 {
                                         let is_square_occupied = self.squares.get(&new_square).unwrap().graphics_piece.is_some();
                                         let is_capture_move = (new_square.0 as i32 - i as i32).abs() == 1;
@@ -411,79 +398,9 @@ impl UIChessBoard {
             if let Some(square) = self.squares.get_mut(&(i, j)) {
                 if is_mouse_button_down(MouseButton::Left) {
                     if let Some(ref mut piece) = square.graphics_piece {
-                        match piece {
-                            GraphicsPiece::Pawn { x, y, .. } | GraphicsPiece::Knight { x, y, .. } | GraphicsPiece::Bishop { x, y, .. } | GraphicsPiece::Rook { x, y, .. } | GraphicsPiece::Queen { x, y, .. } | GraphicsPiece::King { x, y, .. } => {
-                                *x = mouse_x;
-                                *y = mouse_y;
-                            }
-                        }
+                        piece.x = mouse_x;
+                        piece.y = mouse_y;
                     }
-                }
-            }
-        }
-    }
-
-    pub fn update_as_free_movement(&mut self, window_parameters: &WindowParameters, chess_position: &mut ChessBoard) {
-        let (mouse_x, mouse_y) = window_parameters.mouse_position();
-
-        if is_mouse_button_pressed(MouseButton::Left) {
-            for ((i, j), square) in &self.squares {
-                let is_hovered = mouse_x >= square.x && mouse_x <= square.x + square.width && mouse_y >= square.y && mouse_y <= square.y + square.height;
-
-                if is_hovered {
-                    self.held_piece = Some((*i, *j));
-                    break;
-                }
-            }
-        }
-
-        if let Some((i, j)) = self.held_piece {
-            if let Some(square) = self.squares.get_mut(&(i, j)) {
-                if is_mouse_button_down(MouseButton::Left) {
-                    if let Some(ref mut piece) = square.graphics_piece {
-                        match piece {
-                            GraphicsPiece::Pawn { x, y, .. } | GraphicsPiece::Knight { x, y, .. } | GraphicsPiece::Bishop { x, y, .. } | GraphicsPiece::Rook { x, y, .. } | GraphicsPiece::Queen { x, y, .. } | GraphicsPiece::King { x, y, .. } => {
-                                *x = mouse_x;
-                                *y = mouse_y;
-                            }
-                        }
-                    }
-                } else {
-                    let new_square_pos = self
-                        .squares
-                        .iter()
-                        .find_map(|((new_i, new_j), new_square)| {
-                            let is_hovered = mouse_x >= new_square.x && mouse_x <= new_square.x + new_square.width && mouse_y >= new_square.y && mouse_y <= new_square.y + new_square.height;
-                            if is_hovered {
-                                match chess_position.move_piece((i, j), (*new_i, *new_j), None) {
-                                    Ok(_) => Some((*new_i, *new_j)),
-                                    Err(_) => None,
-                                }
-                            } else {
-                                None
-                            }
-                        })
-                        .or(Some((i, j)));
-
-                    if let Some((new_i, new_j)) = new_square_pos {
-                        if let Some(mut piece) = self.squares.get_mut(&(i, j)).and_then(|square| square.graphics_piece.take()) {
-                            if let Some(new_square) = self.squares.get_mut(&(new_i, new_j)) {
-                                let new_x = new_square.x + new_square.width / 2.0;
-                                let new_y = new_square.y + new_square.height / 2.0;
-
-                                match &mut piece {
-                                    GraphicsPiece::Pawn { x, y, .. } | GraphicsPiece::Knight { x, y, .. } | GraphicsPiece::Bishop { x, y, .. } | GraphicsPiece::Rook { x, y, .. } | GraphicsPiece::Queen { x, y, .. } | GraphicsPiece::King { x, y, .. } => {
-                                        *x = new_x;
-                                        *y = new_y;
-                                    }
-                                }
-
-                                new_square.graphics_piece = Some(piece);
-                            }
-                        }
-                    }
-
-                    self.held_piece = None;
                 }
             }
         }

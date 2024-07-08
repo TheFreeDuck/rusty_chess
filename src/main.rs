@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+//#![windows_subsystem = "windows"]
 
 pub mod chess;
 pub mod ui;
@@ -27,7 +27,7 @@ async fn main() {
 
     let mut game_state = GameState::Menu;
 
-    let mut board = chess::chess_board::ChessBoard::starting_positions();
+    let mut board = chess::chess_board::ChessBoard::stalemate_start();
 
     let mut window_parameters = WindowParameters::new((16.0, 9.0));
 
@@ -49,13 +49,11 @@ async fn main() {
         window_parameters.update();
         window_parameters.clear(BEIGE);
         window_parameters.render_texture(0.0, 0.0, 1.0, 1.0, &texture);
-        
-        if is_key_pressed(KeyCode::F11){
+
+        if is_key_pressed(KeyCode::F11) {
             is_fullscreen = !is_fullscreen;
             set_fullscreen(is_fullscreen);
-
         }
-
 
         match game_state {
             GameState::Menu => {
@@ -80,8 +78,7 @@ async fn main() {
                     game_state = GameState::Menu;
                 }
                 if against_yourself.was_button_clicked("Reset") {
-                    ui_chess_board.flip(&board.squares);
-                    ui_chess_board.flip(&board.squares);
+                    ui_chess_board.reset_board(&ChessBoard::starting_positions().squares);
                     board = ChessBoard::starting_positions();
                     ui_chess_board.update(&board.squares);
                     against_yourself.remove_title("Win");
@@ -99,20 +96,21 @@ async fn main() {
                     ui_chess_board.check_result(result);
                     ui_chess_board.update(&board.squares);
                 }
+
                 match ui_chess_board.game_status {
                     chess::chess_board::GameStatus::Ongoing => {}
-                    chess::chess_board::GameStatus::Draw => against_yourself.add_title("Draw", Title::new_center_width("Draw", 90.0, 0.4, RED)),
+                    chess::chess_board::GameStatus::Draw(_) => against_yourself.add_title("Draw", Title::new("Draw", 130.0, 0.3, 0.4, BLACK)),
                     chess::chess_board::GameStatus::Win(color) => {
                         let win_string = match color {
                             chess::Color::White => "White won",
                             chess::Color::Black => "Black won",
                         };
-                        against_yourself.add_title("Win", Title::new(win_string, 60.0, 0.85, 0.4, BLACK))
+                        against_yourself.add_title("Win", Title::new(win_string, 130.0, 0.3, 0.4, BLACK))
                     }
                 }
 
-                against_yourself.render(&window_parameters);
                 ui_chess_board.render(&window_parameters);
+                against_yourself.render(&window_parameters);
             }
             GameState::AgainstBot => {
                 against_bot.update(&window_parameters);

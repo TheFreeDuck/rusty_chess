@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dialog-box = "0.1.0"
 macroquad = "0.4.8"
 rust-embed = "8.4.0"
 tempfile = "3.2"
