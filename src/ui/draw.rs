@@ -3,10 +3,10 @@ use std::io::Write;
 use macroquad::{
     color::*,
     input::mouse_position,
-    math::vec2,
+    math::{vec2, Vec2},
     shapes::*,
-    text::{draw_text, draw_text_ex},
-    texture::{self, draw_texture_ex, load_texture, DrawTextureParams, Texture2D},
+    text::{draw_text, get_text_center},
+    texture::{draw_texture_ex, load_texture, DrawTextureParams, Texture2D},
     window::*,
 };
 use tempfile::NamedTempFile;
@@ -104,6 +104,10 @@ impl WindowParameters {
 
     pub fn clear(&self, color: Color) {
         draw_rectangle(self.x_offset, self.y_offset, self.width, self.height, color);
+    }
+
+    pub fn get_text_center(&self, text: &str, font_size: u16) -> Vec2{
+        get_text_center(text, None, font_size, 1.0, 0.0)/Vec2::new(self.width, self.height)
     }
 
     pub fn render_circle(&self, x: f32, y: f32, radius: f32, color: Color) {

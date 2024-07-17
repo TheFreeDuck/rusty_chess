@@ -2,16 +2,13 @@ use crate::{
     chess::{
         self,
         chess_board::{GameStatus, MoveError},
-        piece::PromotionPiece, Color as ChessColor,
+        piece::PromotionPiece,
+        Color as ChessColor,
     },
     draw::WindowParameters,
 };
 use chess::piece::Piece;
-use macroquad::{
-    color::{Color, BROWN, GRAY},
-    input::{is_mouse_button_down, is_mouse_button_pressed, MouseButton},
-    texture::Texture2D,
-};
+use macroquad::prelude::*;
 use std::{collections::HashMap, usize};
 
 use super::draw::load_texture_from_bytes;
@@ -38,7 +35,7 @@ pub struct GraphicsPiece {
 }
 
 impl GraphicsPiece {
-    fn from_chess_piece(piece: Option<Piece>, square_x: f32, square_y: f32, square_width: f32, square_height: f32, textures: HashMap<PieceType,Texture2D>) -> Option<GraphicsPiece> {
+    fn from_chess_piece(piece: Option<Piece>, square_x: f32, square_y: f32, square_width: f32, square_height: f32, textures: HashMap<PieceType, Texture2D>) -> Option<GraphicsPiece> {
         if let Some(piece) = piece {
             let piece_type = match piece {
                 Piece::Pawn { color, .. } => PieceType::Pawn(color),
@@ -48,8 +45,8 @@ impl GraphicsPiece {
                 Piece::Queen { color, .. } => PieceType::Queen(color),
                 Piece::King { color, .. } => PieceType::King(color),
             };
-            match textures.get(&piece_type){
-                Some(texture) => return Some(GraphicsPiece { piece_type, x: square_x + square_width/2.0, y: square_y + square_height/2.0, texture: texture.to_owned() }),
+            match textures.get(&piece_type) {
+                Some(texture) => return Some(GraphicsPiece { piece_type, x: square_x + square_width / 2.0, y: square_y + square_height / 2.0, texture: texture.to_owned() }),
                 None => return None,
             }
         }
@@ -57,7 +54,7 @@ impl GraphicsPiece {
     }
 
     pub fn render(&self, window_parameters: &WindowParameters, parent_square: &Square) {
-        window_parameters.render_texture(self.x - parent_square.width/2.0, self.y - parent_square.height/2.0, parent_square.width, parent_square.height, &self.texture);
+        window_parameters.render_texture(self.x - parent_square.width / 2.0, self.y - parent_square.height / 2.0, parent_square.width, parent_square.height, &self.texture);
     }
 }
 
@@ -139,8 +136,6 @@ impl UIChessBoard {
         let square_width = width / grid_width_x as f32;
         let square_height = height / grid_width_y as f32;
 
-
-
         let mut is_square_white = true;
         let mut color = BLACK_SQUARE_COLOR;
 
@@ -169,6 +164,44 @@ impl UIChessBoard {
             }
         }
         UIChessBoard { x, y, width, height, squares, held_piece: None, play_as, promotion: None, game_status: GameStatus::Ongoing, textures, window_aspect_ratio: window_aspect_ratio.to_owned() }
+    }
+
+    fn show_game_ended_popup(&mut self, window_parameters: &WindowParameters) {
+        let popup_x = self.x + self.width / 2.0 - (self.width / 4.0) / 2.0;
+        let popup_y = self.y + self.height / 2.0 - (self.height / 4.0) / 2.0;
+        let popup_width = self.width / 4.0;
+        let popup_height = self.height / 4.0;
+
+        let button_size = 0.02; // 5% of screen width/height
+        let button_x = popup_x + popup_width - button_size - 0.01; // Slight padding from right edge
+        let button_y = popup_y + 0.01;
+
+        match self.game_status {
+            chess::chess_board::GameStatus::Ongoing => {}
+            chess::chess_board::GameStatus::Draw(draw_type) => {
+                let draw_type_string = match draw_type {
+                    chess::chess_board::DrawType::Stalemate => "Draw by stalemate",
+                    chess::chess_board::DrawType::MoveRule => "Draw by 50 move rule",
+                    chess::chess_board::DrawType::Repetion => "Draw by 3 fold repetition",
+                };
+                let text_center = window_parameters.get_text_center(draw_type_string, 30);
+                window_parameters.render_rectangle(popup_x, popup_y, popup_width, popup_height, GRAY);
+                window_parameters.render_text(draw_type_string, popup_x + popup_width / 2.0 - text_center.x, popup_y + popup_height / 2.0, 30.0, BLACK);
+                window_parameters.render_rectangle(button_x, button_y, button_size, button_size, RED);
+                window_parameters.render_text("X", button_x + button_size / 3.0, button_y + button_size / 1.5, 30.0, WHITE);
+            }
+            chess::chess_board::GameStatus::Win(color) => {
+                let win_color = match color {
+                    ChessColor::White => "Win for White",
+                    ChessColor::Black => "Win for Black",
+                };
+                let text_center = window_parameters.get_text_center(win_color, 30);
+                window_parameters.render_rectangle(popup_x, popup_y, popup_width, popup_height, GRAY);
+                window_parameters.render_text(win_color, popup_x + popup_width / 2.0 - text_center.x, popup_y + popup_height / 2.0, 30.0, BLACK);
+                window_parameters.render_rectangle(button_x, button_y, button_size, button_size, RED);
+                window_parameters.render_text("X", button_x + button_size / 3.0, button_y + button_size / 1.5, 30.0, WHITE);
+            }
+        }
     }
 
     pub fn update(&mut self, chess_position: &[[Option<Piece>; 8]; 8]) {
@@ -242,6 +275,8 @@ impl UIChessBoard {
             },
             None => (),
         }
+
+        self.show_game_ended_popup(window_parameters);
     }
 
     fn create_promotion_pieces_popup(&self, promotion_x: usize, to_move_is_white: bool, from: (usize, usize), to: (usize, usize)) -> PromotionPiecesPopup {

@@ -7,8 +7,7 @@ use std::process::exit;
 use chess::ChessBoard;
 use draw::WindowParameters;
 use macroquad::prelude::*;
-use ui::{draw, layouts, ui_chess_board::UIChessBoard, ui_manager};
-use ui_manager::Title;
+use ui::{draw, layouts, ui_chess_board::UIChessBoard};
 
 fn window_conf() -> Conf {
     Conf { window_title: "Rusty Chess".to_owned(), window_width: 1600, window_height: 900, icon: None, window_resizable: true, fullscreen: true, ..Default::default() }
@@ -27,7 +26,7 @@ async fn main() {
 
     let mut game_state = GameState::Menu;
 
-    let mut board = chess::chess_board::ChessBoard::stalemate_start();
+    let mut board = chess::chess_board::ChessBoard::starting_positions();
 
     let mut window_parameters = WindowParameters::new((16.0, 9.0));
 
@@ -50,7 +49,7 @@ async fn main() {
         window_parameters.clear(BEIGE);
         window_parameters.render_texture(0.0, 0.0, 1.0, 1.0, &texture);
 
-        if is_key_pressed(KeyCode::F11) {
+        if is_key_pressed(KeyCode::F11) || is_key_down(KeyCode::LeftShift) && is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::LeftShift) && is_key_down(KeyCode::Enter) {
             is_fullscreen = !is_fullscreen;
             set_fullscreen(is_fullscreen);
         }
@@ -74,6 +73,8 @@ async fn main() {
                 }
             }
             GameState::AgainstYourself => {
+                against_yourself.update(&window_parameters);
+                ui_chess_board.update_assume_logic(&window_parameters);
                 if against_yourself.was_button_clicked("Back") {
                     game_state = GameState::Menu;
                 }
@@ -81,32 +82,16 @@ async fn main() {
                     ui_chess_board.reset_board(&ChessBoard::starting_positions().squares);
                     board = ChessBoard::starting_positions();
                     ui_chess_board.update(&board.squares);
-                    against_yourself.remove_title("Win");
-                    against_yourself.remove_title("Draw");
                 }
                 if against_yourself.was_button_clicked("Flip") {
                     ui_chess_board.flip(&board.squares);
                 }
 
-                against_yourself.update(&window_parameters);
-                ui_chess_board.update_assume_logic(&window_parameters);
                 let movement_proposal = ui_chess_board.request_move(&window_parameters);
                 if let Some(coord) = movement_proposal.0 {
                     let result = board.move_piece(coord.0, coord.1, movement_proposal.1);
                     ui_chess_board.check_result(result);
                     ui_chess_board.update(&board.squares);
-                }
-
-                match ui_chess_board.game_status {
-                    chess::chess_board::GameStatus::Ongoing => {}
-                    chess::chess_board::GameStatus::Draw(_) => against_yourself.add_title("Draw", Title::new("Draw", 130.0, 0.3, 0.4, BLACK)),
-                    chess::chess_board::GameStatus::Win(color) => {
-                        let win_string = match color {
-                            chess::Color::White => "White won",
-                            chess::Color::Black => "Black won",
-                        };
-                        against_yourself.add_title("Win", Title::new(win_string, 130.0, 0.3, 0.4, BLACK))
-                    }
                 }
 
                 ui_chess_board.render(&window_parameters);
