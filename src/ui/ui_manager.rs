@@ -1,6 +1,9 @@
 use crate::draw::WindowParameters;
 use macroquad::{
-    color::{Color, BLACK}, input::{is_mouse_button_pressed, MouseButton}, math::Vec2, text::get_text_center
+    color::{Color, BLACK},
+    input::{is_mouse_button_pressed, MouseButton},
+    math::Vec2,
+    text::get_text_center,
 };
 use std::collections::HashMap;
 
@@ -30,7 +33,7 @@ impl Button {
         let color = if self.is_hovered { self.hover_color } else { self.color };
         window_parameters.render_rectangle(self.x, self.y, self.width, self.height, color);
 
-        let text_middle = get_text_center(&self.label, None, 40, 1.0, 0.0)/Vec2::new(window_parameters.width,window_parameters.height);
+        let text_middle = get_text_center(&self.label, None, 40, 1.0, 0.0) / Vec2::new(window_parameters.width, window_parameters.height);
 
         window_parameters.render_text(&self.label, self.x + (self.width / 2.0) - text_middle.x, self.y + (self.height / 2.0) - text_middle.y, 40.0, BLACK);
     }
@@ -65,8 +68,8 @@ impl Title {
     }
 
     pub fn render(&mut self, window_parameters: &WindowParameters) {
-        let text_middle = get_text_center(&self.text, None, 40, 1.0, 0.0)/Vec2::new(window_parameters.width,window_parameters.height);
-        window_parameters.render_text(&self.text, self.x - text_middle.x*2.0, self.y - text_middle.y*2.0, self.size, self.color);
+        let text_middle = get_text_center(&self.text, None, 40, 1.0, 0.0) / Vec2::new(window_parameters.width, window_parameters.height);
+        window_parameters.render_text(&self.text, self.x - text_middle.x * 2.0, self.y - text_middle.y * 2.0, self.size, self.color);
     }
 }
 
@@ -77,7 +80,7 @@ pub struct UIManager {
 
 impl UIManager {
     pub fn new() -> Self {
-        UIManager { buttons: HashMap::new(), titles: HashMap::new()}
+        UIManager { buttons: HashMap::new(), titles: HashMap::new() }
     }
 
     pub fn add_button(&mut self, id: &str, button: Button) {
@@ -88,10 +91,9 @@ impl UIManager {
         self.titles.insert(id.to_string(), title);
     }
 
-    pub fn remove_title(&mut self, id: &str){
+    pub fn remove_title(&mut self, id: &str) {
         self.titles.remove(id);
     }
-
 
     pub fn render(&mut self, window_parameters: &WindowParameters) {
         for button in self.buttons.values_mut() {
