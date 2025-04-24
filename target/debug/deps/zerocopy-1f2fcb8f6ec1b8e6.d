@@ -1,0 +1,13 @@
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\libzerocopy-1f2fcb8f6ec1b8e6.rmeta: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\macros.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\macro_util.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\post_monomorphization_compile_fail_tests.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\util.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\third_party\rust\layout.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\wrappers.rs
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\zerocopy-1f2fcb8f6ec1b8e6.d: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\macros.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\macro_util.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\post_monomorphization_compile_fail_tests.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\util.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\third_party\rust\layout.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\wrappers.rs
+
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\lib.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\macros.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\macro_util.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\post_monomorphization_compile_fail_tests.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\util.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\third_party\rust\layout.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\zerocopy-0.7.34\src\wrappers.rs:
+
+# env-dep:CARGO_PKG_VERSION=0.7.34

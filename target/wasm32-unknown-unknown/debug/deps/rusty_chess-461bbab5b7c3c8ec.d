@@ -1,0 +1,28 @@
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\wasm32-unknown-unknown\debug\deps\librusty_chess-461bbab5b7c3c8ec.rmeta: src\lib.rs src\chess\mod.rs src\chess\chess_board.rs src\chess\piece.rs src\chess\coordinate.rs src\ui\mod.rs src\ui\ui_manager.rs src\ui\draw.rs src\ui\ui_chess_board.rs src\ui\layouts.rs src\ui\../../res/white_pawn.png src\ui\../../res/white_knight.png src\ui\../../res/white_bishop.png src\ui\../../res/white_rook.png src\ui\../../res/white_queen.png src\ui\../../res/white_king.png src\ui\../../res/black_pawn.png src\ui\../../res/black_knight.png src\ui\../../res/black_bishop.png src\ui\../../res/black_rook.png src\ui\../../res/black_queen.png src\ui\../../res/black_king.png
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\wasm32-unknown-unknown\debug\deps\librusty_chess-461bbab5b7c3c8ec.rlib: src\lib.rs src\chess\mod.rs src\chess\chess_board.rs src\chess\piece.rs src\chess\coordinate.rs src\ui\mod.rs src\ui\ui_manager.rs src\ui\draw.rs src\ui\ui_chess_board.rs src\ui\layouts.rs src\ui\../../res/white_pawn.png src\ui\../../res/white_knight.png src\ui\../../res/white_bishop.png src\ui\../../res/white_rook.png src\ui\../../res/white_queen.png src\ui\../../res/white_king.png src\ui\../../res/black_pawn.png src\ui\../../res/black_knight.png src\ui\../../res/black_bishop.png src\ui\../../res/black_rook.png src\ui\../../res/black_queen.png src\ui\../../res/black_king.png
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\wasm32-unknown-unknown\debug\deps\rusty_chess-461bbab5b7c3c8ec.d: src\lib.rs src\chess\mod.rs src\chess\chess_board.rs src\chess\piece.rs src\chess\coordinate.rs src\ui\mod.rs src\ui\ui_manager.rs src\ui\draw.rs src\ui\ui_chess_board.rs src\ui\layouts.rs src\ui\../../res/white_pawn.png src\ui\../../res/white_knight.png src\ui\../../res/white_bishop.png src\ui\../../res/white_rook.png src\ui\../../res/white_queen.png src\ui\../../res/white_king.png src\ui\../../res/black_pawn.png src\ui\../../res/black_knight.png src\ui\../../res/black_bishop.png src\ui\../../res/black_rook.png src\ui\../../res/black_queen.png src\ui\../../res/black_king.png
+
+src\lib.rs:
+src\chess\mod.rs:
+src\chess\chess_board.rs:
+src\chess\piece.rs:
+src\chess\coordinate.rs:
+src\ui\mod.rs:
+src\ui\ui_manager.rs:
+src\ui\draw.rs:
+src\ui\ui_chess_board.rs:
+src\ui\layouts.rs:
+src\ui\../../res/white_pawn.png:
+src\ui\../../res/white_knight.png:
+src\ui\../../res/white_bishop.png:
+src\ui\../../res/white_rook.png:
+src\ui\../../res/white_queen.png:
+src\ui\../../res/white_king.png:
+src\ui\../../res/black_pawn.png:
+src\ui\../../res/black_knight.png:
+src\ui\../../res/black_bishop.png:
+src\ui\../../res/black_rook.png:
+src\ui\../../res/black_queen.png:
+src\ui\../../res/black_king.png:

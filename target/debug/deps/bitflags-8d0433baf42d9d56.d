@@ -1,0 +1,11 @@
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\libbitflags-8d0433baf42d9d56.rmeta: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\iter.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\parser.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\traits.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\public.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\internal.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\external.rs
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\bitflags-8d0433baf42d9d56.d: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\iter.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\parser.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\traits.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\public.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\internal.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\external.rs
+
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\lib.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\iter.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\parser.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\traits.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\public.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\internal.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bitflags-2.6.0\src\external.rs:

@@ -1,0 +1,152 @@
+use std::thread::{self, Thread};
+use std::time::Duration;
+//#![windows_subsystem = "windows"]
+use std::{collections::HashMap, process::exit};
+
+use chess::Color as ChessColor;
+
+use chess::ChessBoard;
+use draw::WindowParameters;
+use macroquad::prelude::*;
+use rusty_chess::{chess, ui::{self, ui_chess_board::PieceType}};
+use ui::{draw, layouts, ui_chess_board::UIChessBoard};
+
+fn window_conf() -> Conf {
+    Conf { window_title: "Rusty Chess".to_owned(), window_width: 1600, window_height: 900, icon: None, window_resizable: true, fullscreen: true, ..Default::default() }
+}
+
+pub enum GameState {
+    Menu,
+    AgainstYourself,
+    AgainstBot,
+    Online,
+}
+
+pub async fn load_piece_textures() -> HashMap<PieceType, Texture2D> {
+    let mut textures: HashMap<PieceType, Texture2D> = HashMap::new();
+    let white_pawn = load_texture("res/white_pawn.png").await.unwrap();
+    let white_knight = load_texture("res/white_knight.png").await.unwrap();
+    let white_bishop = load_texture("res/white_bishop.png").await.unwrap();
+    let white_rook = load_texture("res/white_rook.png").await.unwrap();
+    let white_queen = load_texture("res/white_queen.png").await.unwrap();
+    let white_king = load_texture("res/white_king.png").await.unwrap();
+
+    let black_pawn = load_texture("res/black_pawn.png").await.unwrap();
+    let black_knight = load_texture("res/black_knight.png").await.unwrap();
+    let black_bishop = load_texture("res/black_bishop.png").await.unwrap();
+    let black_rook = load_texture("res/black_rook.png").await.unwrap();
+    let black_queen = load_texture("res/black_queen.png").await.unwrap();
+    let black_king = load_texture("res/black_king.png").await.unwrap();
+    textures.insert(PieceType::Pawn(ChessColor::White), white_pawn);
+    textures.insert(PieceType::Knight(ChessColor::White), white_knight);
+    textures.insert(PieceType::Bishop(ChessColor::White), white_bishop);
+    textures.insert(PieceType::Rook(ChessColor::White), white_rook);
+    textures.insert(PieceType::Queen(ChessColor::White), white_queen);
+    textures.insert(PieceType::King(ChessColor::White), white_king);
+
+    textures.insert(PieceType::Pawn(ChessColor::Black), black_pawn);
+    textures.insert(PieceType::Knight(ChessColor::Black), black_knight);
+    textures.insert(PieceType::Bishop(ChessColor::Black), black_bishop);
+    textures.insert(PieceType::Rook(ChessColor::Black), black_rook);
+    textures.insert(PieceType::Queen(ChessColor::Black), black_queen);
+    textures.insert(PieceType::King(ChessColor::Black), black_king);
+
+    textures
+}
+
+#[macroquad::main(window_conf)]
+async fn main() {
+    let texture = load_texture("res/background.png").await.unwrap();
+
+    let mut game_state = GameState::Menu;
+
+    let mut board = chess::chess_board::ChessBoard::starting_positions();
+
+    let mut window_parameters = WindowParameters::new((16.0, 9.0));
+
+    let textures = load_piece_textures().await;
+
+    let mut ui_chess_board = UIChessBoard::new(0.05, 0.055_555_556, 0.5, &board.squares, &window_parameters.aspect_ratio_number, chess::Color::White, textures);
+
+    let mut main_menu = layouts::main_menu();
+
+    let mut against_yourself = layouts::against_yourself();
+
+    let mut against_bot = layouts::against_bot();
+
+    let mut online = layouts::online();
+
+    let mut is_fullscreen = true;
+
+    loop {
+        window_parameters.update();
+        window_parameters.clear(BEIGE);
+        window_parameters.render_texture(0.0, 0.0, 1.0, 1.0, &texture);
+
+        if is_key_pressed(KeyCode::F11) || is_key_down(KeyCode::LeftShift) && is_key_pressed(KeyCode::Enter) || is_key_pressed(KeyCode::LeftShift) && is_key_down(KeyCode::Enter) {
+            is_fullscreen = !is_fullscreen;
+            set_fullscreen(is_fullscreen);
+        }
+
+        match game_state {
+            GameState::Menu => {
+                main_menu.update(&window_parameters);
+                main_menu.render(&window_parameters);
+
+                if main_menu.was_button_clicked("Against yourself") {
+                    game_state = GameState::AgainstYourself;
+                }
+                if main_menu.was_button_clicked("Against bot") {
+                    game_state = GameState::AgainstBot;
+                }
+                if main_menu.was_button_clicked("Online") {
+                    game_state = GameState::Online;
+                }
+                if main_menu.was_button_clicked("Quit") {
+                    exit(0);
+                }
+            }
+            GameState::AgainstYourself => {
+                against_yourself.update(&window_parameters);
+                ui_chess_board.update_assume_logic(&window_parameters);
+                if against_yourself.was_button_clicked("Back") {
+                    game_state = GameState::Menu;
+                }
+                if against_yourself.was_button_clicked("Reset") {
+                    ui_chess_board.reset_board(&ChessBoard::starting_positions().squares);
+                    board = ChessBoard::starting_positions();
+                    ui_chess_board.update(&board.squares);
+                }
+                if against_yourself.was_button_clicked("Flip") {
+                    ui_chess_board.flip(&board.squares);
+                }
+
+                let movement_proposal = ui_chess_board.request_move(&window_parameters);
+                if let Some(coord) = movement_proposal.0 {
+                    let result = board.move_piece(coord.0, coord.1, movement_proposal.1);
+                    ui_chess_board.check_result(result);
+                    ui_chess_board.update(&board.squares);
+                }
+
+                ui_chess_board.render(&window_parameters);
+                against_yourself.render(&window_parameters);
+            }
+            GameState::AgainstBot => {
+                against_bot.update(&window_parameters);
+                against_bot.render(&window_parameters);
+                if against_bot.was_button_clicked("Back") {
+                    game_state = GameState::Menu;
+                }
+            }
+            GameState::Online => {
+                online.update(&window_parameters);
+                online.render(&window_parameters);
+                if online.was_button_clicked("Back") {
+                    game_state = GameState::Menu;
+                }
+            }
+        }
+        window_parameters.clear_outside(BLACK);
+        next_frame().await
+    }
+}

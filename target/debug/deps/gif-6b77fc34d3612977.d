@@ -1,0 +1,11 @@
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\libgif-6b77fc34d3612977.rmeta: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\traits.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\common.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\reader\mod.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\reader\decoder.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\encoder.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\../README.md
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\gif-6b77fc34d3612977.d: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\traits.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\common.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\reader\mod.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\reader\decoder.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\encoder.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\../README.md
+
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\lib.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\traits.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\common.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\reader\mod.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\reader\decoder.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\encoder.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.11.4\src\../README.md:

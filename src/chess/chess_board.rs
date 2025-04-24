@@ -48,6 +48,7 @@ pub enum MoveError {
     NotYourTurn,
     IllegalMove,
     GameHasEnded,
+    PromotionPieceRequired
 }
 
 impl ChessBoard {
@@ -55,7 +56,7 @@ impl ChessBoard {
         let moves = self.all_legal_moves();
         let mut side_to_move = self.side_to_move;
 
-        if moves.len() == 0 {
+        if moves.is_empty() {
             if self.is_in_check(self.side_to_move) {
                 side_to_move.switch();
                 return GameStatus::Win(side_to_move);
@@ -326,28 +327,30 @@ impl ChessBoard {
         }
     }
 
-    pub fn display_as_text(&self) {
+    pub fn display_as_text(&self) -> String{
+        let mut board = String::new();
         for i in (0..8).rev() {
             for j in 0..8 {
                 let piece = self.squares[j][i];
-                match piece {
-                    Some(Piece::Pawn { color: Color::Black, .. }) => print!("[p]"),
-                    Some(Piece::Knight { color: Color::Black }) => print!("[n]"),
-                    Some(Piece::Bishop { color: Color::Black }) => print!("[b]"),
-                    Some(Piece::Rook { color: Color::Black, .. }) => print!("[r]"),
-                    Some(Piece::Queen { color: Color::Black }) => print!("[q]"),
-                    Some(Piece::King { color: Color::Black, .. }) => print!("[k]"),
+                board += match piece {
+                    Some(Piece::Pawn { color: Color::Black, .. }) =>  "[p]",
+                    Some(Piece::Knight { color: Color::Black }) => "[n]",
+                    Some(Piece::Bishop { color: Color::Black }) => "[b]",
+                    Some(Piece::Rook { color: Color::Black, .. }) => "[r]",
+                    Some(Piece::Queen { color: Color::Black }) => "[q]",
+                    Some(Piece::King { color: Color::Black, .. }) => "[k]",
 
-                    Some(Piece::Pawn { color: Color::White, .. }) => print!("[P]"),
-                    Some(Piece::Knight { color: Color::White }) => print!("[N]"),
-                    Some(Piece::Bishop { color: Color::White }) => print!("[B]"),
-                    Some(Piece::Rook { color: Color::White, .. }) => print!("[R]"),
-                    Some(Piece::Queen { color: Color::White }) => print!("[Q]"),
-                    Some(Piece::King { color: Color::White, .. }) => print!("[K]"),
-                    None => print!("[ ]"),
+                    Some(Piece::Pawn { color: Color::White, .. }) => "[P]",
+                    Some(Piece::Knight { color: Color::White }) => "[N]",
+                    Some(Piece::Bishop { color: Color::White }) => "[B]",
+                    Some(Piece::Rook { color: Color::White, .. }) => "[R]",
+                    Some(Piece::Queen { color: Color::White }) => "[Q]",
+                    Some(Piece::King { color: Color::White, .. }) => "[K]",
+                    None => "[ ]",
                 }
             }
-            println!();
+            board += "\n";
         }
+        board
     }
 }

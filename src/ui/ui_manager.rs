@@ -1,4 +1,4 @@
-use crate::draw::WindowParameters;
+use crate::ui::draw::WindowParameters;
 use macroquad::{
     color::{Color, BLACK},
     input::{is_mouse_button_pressed, MouseButton},

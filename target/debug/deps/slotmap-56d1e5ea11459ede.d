@@ -1,0 +1,11 @@
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\libslotmap-56d1e5ea11459ede.rmeta: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\basic.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\dense.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\hop.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\secondary.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\sparse_secondary.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\util.rs
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\slotmap-56d1e5ea11459ede.d: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\basic.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\dense.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\hop.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\secondary.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\sparse_secondary.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\util.rs
+
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\lib.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\basic.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\dense.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\hop.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\secondary.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\sparse_secondary.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\slotmap-1.0.7\src\util.rs:

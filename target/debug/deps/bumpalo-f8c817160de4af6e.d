@@ -1,0 +1,7 @@
+C:\Users\Fredrik\Documents\GitHub\rusty_chess\target\debug\deps\libbumpalo-f8c817160de4af6e.rmeta: C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bumpalo-3.16.0\src/lib.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bumpalo-3.16.0\src\alloc.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bumpalo-3.16.0\src\../README.md
+
+C:\Users\Fredrik\Documents\GitHub\rusty_chess\target\debug\deps\bumpalo-f8c817160de4af6e.d: C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bumpalo-3.16.0\src/lib.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bumpalo-3.16.0\src\alloc.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bumpalo-3.16.0\src\../README.md
+
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bumpalo-3.16.0\src/lib.rs:
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bumpalo-3.16.0\src\alloc.rs:
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\bumpalo-3.16.0\src\../README.md:

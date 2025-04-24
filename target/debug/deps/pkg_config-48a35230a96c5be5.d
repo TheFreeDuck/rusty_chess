@@ -1,0 +1,7 @@
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\libpkg_config-48a35230a96c5be5.rmeta: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pkg-config-0.3.32\src\lib.rs
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\libpkg_config-48a35230a96c5be5.rlib: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pkg-config-0.3.32\src\lib.rs
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\pkg_config-48a35230a96c5be5.d: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pkg-config-0.3.32\src\lib.rs
+
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\pkg-config-0.3.32\src\lib.rs:

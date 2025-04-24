@@ -5,7 +5,7 @@ use crate::{
         piece::PromotionPiece,
         Color as ChessColor,
     },
-    draw::WindowParameters,
+    ui::draw::WindowParameters,
 };
 use chess::piece::Piece;
 use macroquad::prelude::*;
@@ -172,9 +172,9 @@ impl UIChessBoard {
         let popup_width = self.width / 4.0;
         let popup_height = self.height / 4.0;
 
-        let button_size = self.width/30.0;
-        let button_x = popup_x + popup_width/2.0 - button_size;
-        let button_y = popup_y + popup_height/2.0 -button_size;
+        let button_size = self.width / 30.0;
+        let button_x = popup_x + popup_width / 2.0 - button_size;
+        let button_y = popup_y + popup_height / 2.0 - button_size;
 
         match self.game_status {
             chess::chess_board::GameStatus::Ongoing => {}
@@ -205,8 +205,8 @@ impl UIChessBoard {
     }
 
     pub fn update(&mut self, chess_position: &[[Option<Piece>; 8]; 8]) {
-        for i in 0..8 {
-            for j in 0..8 {
+        (0..8).for_each(|i| {
+            (0..8).for_each(|j| {
                 let square = self.squares.get_mut(&(i, j)).unwrap();
                 let current_graphics_piece = &square.graphics_piece;
                 let new_piece = &chess_position[i][j];
@@ -215,8 +215,8 @@ impl UIChessBoard {
                 if current_graphics_piece != &new_graphics_piece {
                     square.graphics_piece = new_graphics_piece;
                 }
-            }
-        }
+            });
+        });
     }
 
     pub fn reset_board(&mut self, chess_position: &[[Option<Piece>; 8]; 8]) {

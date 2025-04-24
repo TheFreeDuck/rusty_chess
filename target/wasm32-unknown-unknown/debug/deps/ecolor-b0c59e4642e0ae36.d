@@ -1,0 +1,11 @@
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\wasm32-unknown-unknown\debug\deps\libecolor-b0c59e4642e0ae36.rmeta: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\color32.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\hsva_gamma.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\hsva.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\rgba.rs
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\wasm32-unknown-unknown\debug\deps\libecolor-b0c59e4642e0ae36.rlib: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\color32.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\hsva_gamma.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\hsva.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\rgba.rs
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\wasm32-unknown-unknown\debug\deps\ecolor-b0c59e4642e0ae36.d: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\color32.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\hsva_gamma.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\hsva.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\rgba.rs
+
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\lib.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\color32.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\hsva_gamma.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\hsva.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ecolor-0.21.0\src\rgba.rs:

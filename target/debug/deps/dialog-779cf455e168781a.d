@@ -1,0 +1,11 @@
+C:\Users\Fredrik\Documents\GitHub\rusty_chess\target\debug\deps\libdialog-779cf455e168781a.rmeta: C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\lib.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\error.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\mod.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\dialog.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\kdialog.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\stdio.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\zenity.rs
+
+C:\Users\Fredrik\Documents\GitHub\rusty_chess\target\debug\deps\dialog-779cf455e168781a.d: C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\lib.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\error.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\mod.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\dialog.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\kdialog.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\stdio.rs C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\zenity.rs
+
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\lib.rs:
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\error.rs:
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\mod.rs:
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\dialog.rs:
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\kdialog.rs:
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\stdio.rs:
+C:\Users\Fredrik\.cargo\registry\src\index.crates.io-6f17d22bba15001f\dialog-0.3.0\src\backends\zenity.rs:

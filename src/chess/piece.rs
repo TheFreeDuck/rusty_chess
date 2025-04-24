@@ -24,10 +24,10 @@ pub enum PromotionPiece {
 impl PromotionPiece {
     pub fn as_piece(&self, color: Color) -> Option<Piece> {
         match self {
-            PromotionPiece::Knight => Some(Piece::Knight { color: color }),
-            PromotionPiece::Bishop => Some(Piece::Bishop { color: color }),
-            PromotionPiece::Rook => Some(Piece::Rook { color: color, has_moved: true }),
-            PromotionPiece::Queen => Some(Piece::Queen { color: color }),
+            PromotionPiece::Knight => Some(Piece::Knight { color }),
+            PromotionPiece::Bishop => Some(Piece::Bishop { color }),
+            PromotionPiece::Rook => Some(Piece::Rook { color, has_moved: true }),
+            PromotionPiece::Queen => Some(Piece::Queen { color }),
         }
     }
 }
@@ -113,21 +113,17 @@ impl Piece {
         let to_vector = to.vector();
 
         if is_capture {
-            if color == Color::White {
-                if (to_vector.x - from_vector.x == 1 && to_vector.y - from_vector.y == 1) || (to_vector.x - from_vector.x == -1 && to_vector.y - from_vector.y == 1) {
-                    if to.y == 7 && color == Color::White || to.y == 0 && color == Color::Black {
-                        return MoveType::Capture(CaptureType::Promotion);
-                    }
-                    return MoveType::Capture(CaptureType::Other);
+            if color == Color::White && ((to_vector.x - from_vector.x == 1 && to_vector.y - from_vector.y == 1) || (to_vector.x - from_vector.x == -1 && to_vector.y - from_vector.y == 1)) {
+                if to.y == 7 && color == Color::White || to.y == 0 && color == Color::Black {
+                    return MoveType::Capture(CaptureType::Promotion);
                 }
+                return MoveType::Capture(CaptureType::Other);
             }
-            if color == Color::Black {
-                if (to_vector.x - from_vector.x == 1 && to_vector.y - from_vector.y == -1) || (to_vector.x - from_vector.x == -1 && to_vector.y - from_vector.y == -1) {
-                    if to.y == 7 && color == Color::White || to.y == 0 && color == Color::Black {
-                        return MoveType::Capture(CaptureType::Promotion);
-                    }
-                    return MoveType::Capture(CaptureType::Other);
+            if color == Color::Black && ((to_vector.x - from_vector.x == 1 && to_vector.y - from_vector.y == -1) || (to_vector.x - from_vector.x == -1 && to_vector.y - from_vector.y == -1)) {
+                if to.y == 7 && color == Color::White || to.y == 0 && color == Color::Black {
+                    return MoveType::Capture(CaptureType::Promotion);
                 }
+                return MoveType::Capture(CaptureType::Other);
             }
             return MoveType::Illegal;
         }
@@ -158,8 +154,8 @@ impl Piece {
         }
 
         let can_double_move = match color {
-            Color::Black => from.y == 6 && !board.squares[from.x][from.y - 1].is_some(),
-            Color::White => from.y == 1 && !board.squares[from.x][from.y + 1].is_some(),
+            Color::Black => from.y == 6 && board.squares[from.x][from.y - 1].is_none(),
+            Color::White => from.y == 1 && board.squares[from.x][from.y + 1].is_none(),
         };
 
         if from.y.abs_diff(to.y) == 2 && can_double_move {
@@ -260,9 +256,8 @@ impl Piece {
             y += movement_direction.y;
         }
 
-
         if let Some(piece) = board.squares[to.x][to.y] {
-            if piece.get_color() != color{
+            if piece.get_color() != color {
                 return MoveType::Capture(CaptureType::Other);
             }
         } else {
@@ -277,7 +272,7 @@ impl Piece {
 
         if legal_bishop != MoveType::Illegal {
             return legal_bishop;
-        }else if legal_rook != MoveType::Illegal{
+        } else if legal_rook != MoveType::Illegal {
             return legal_rook;
         }
         return MoveType::Illegal;
@@ -290,7 +285,7 @@ impl Piece {
         let difference = from_vector.difference(to_vector);
         if difference.x <= 1 && difference.y <= 1 {
             if let Some(piece) = board.squares[to.x][to.y] {
-                if piece.get_color() != color{
+                if piece.get_color() != color {
                     return MoveType::Capture(CaptureType::Other);
                 }
             } else {

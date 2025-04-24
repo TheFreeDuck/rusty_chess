@@ -14,15 +14,7 @@ impl Coordinate {
     }
 
     pub fn vector(&self) -> Vector {
-        Vector::new(self.x_i32(), self.y_i32())
-    }
-
-    pub fn x_i32(&self) -> i32 {
-        self.x as i32
-    }
-
-    pub fn y_i32(&self) -> i32 {
-        self.y as i32
+        Vector::new(self.x as i32, self.y as i32)
     }
 }
 

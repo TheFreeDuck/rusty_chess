@@ -1,12 +1,10 @@
 //#![windows_subsystem = "windows"]
-
-pub mod chess;
-pub mod ui;
 use std::process::exit;
 
 use chess::ChessBoard;
 use draw::WindowParameters;
 use macroquad::prelude::*;
+use rusty_chess::{chess, ui};
 use ui::{draw, layouts, ui_chess_board::UIChessBoard};
 
 fn window_conf() -> Conf {
@@ -32,7 +30,7 @@ async fn main() {
 
     let textures = ui::ui_chess_board::load_piece_textures().await;
 
-    let mut ui_chess_board = UIChessBoard::new(0.05, 0.05555555555, 0.5, &board.squares, &window_parameters.aspect_ratio_number, chess::Color::White, textures);
+    let mut ui_chess_board = UIChessBoard::new(0.05, 0.055_555_556, 0.5, &board.squares, &window_parameters.aspect_ratio_number, chess::Color::White, textures);
 
     let mut main_menu = layouts::main_menu();
 

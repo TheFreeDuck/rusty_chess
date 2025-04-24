@@ -1,0 +1,11 @@
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\libwinapi_util-db3532cc2b0fefae.rmeta: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\console.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\file.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\sysinfo.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\win.rs
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\libwinapi_util-db3532cc2b0fefae.rlib: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\console.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\file.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\sysinfo.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\win.rs
+
+C:\Users\FreeDuck\Documents\GitHub\rusty_chess\target\debug\deps\winapi_util-db3532cc2b0fefae.d: C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\lib.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\console.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\file.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\sysinfo.rs C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\win.rs
+
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\lib.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\console.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\file.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\sysinfo.rs:
+C:\Users\FreeDuck\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\winapi-util-0.1.8\src\win.rs:
